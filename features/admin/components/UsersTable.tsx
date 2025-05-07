@@ -39,7 +39,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
 const sortableColumnHeaders = Object.entries(UserSortByTypes);
-const DEBOUNCE_DELAY = 500;
+const DEBOUNCE_DELAY = 300;
 
 const DEFAULT_SORT_KEY = UserSortByTypes.Username;
 const DEFAULT_ORDER = OrderByTypes.Ascending;

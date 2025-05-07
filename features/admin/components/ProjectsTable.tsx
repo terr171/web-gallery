@@ -57,7 +57,7 @@ import { Badge } from "@/components/ui/badge";
 import ProjectModal from "@/features/project/components/ProjectModal";
 
 const sortableColumnHeaders = Object.entries(ProjectSortByTypesForAdmin);
-const DEBOUNCE_DELAY = 500;
+const DEBOUNCE_DELAY = 300;
 
 const DEFAULT_SORT_KEY = ProjectSortByTypesForAdmin.Title;
 const DEFAULT_ORDER = OrderByTypes.Ascending;
@@ -143,7 +143,7 @@ const ProjectsTable = () => {
     return () => {
       clearTimeout(timerId);
     };
-  }, [searchText]);
+  }, [searchText, debouncedSearchText]);
 
   useEffect(() => {
     if (abortControllerRef.current) {
@@ -292,7 +292,7 @@ const ProjectsTable = () => {
               type="text"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Search users..."
+              placeholder="Search projects..."
               className="md:w-64"
             />
             <TooltipProvider>
