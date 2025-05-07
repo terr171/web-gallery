@@ -45,7 +45,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
   const [open, setOpen] = useState(true);
   const [liked, setLiked] = useState(false);
   const [likedCount, setLikedCount] = useState(project.likesCount);
-
+  const [isPending, setIsPending] = useState(false);
   const [projectComments, setProjectComments] = useState<CommentData[]>(
     project.comments || [],
   );
@@ -135,6 +135,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
 
   const handleDeleteComment = async (commentId: string) => {
     const query = await deleteComment({ commentId: commentId });
+    setIsPending(true);
     if (query.success) {
       setProjectComments((prev) =>
         prev.filter((comment) => comment.id !== commentId),
@@ -142,6 +143,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
     } else {
       toast.error(query.error);
     }
+    setIsPending(false);
   };
 
   const handleDeleteProject = async () => {
@@ -209,7 +211,11 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                 {project.isOwner && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={isPending}
+                      >
                         <Trash2 size={16} />
                       </Button>
                     </AlertDialogTrigger>
