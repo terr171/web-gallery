@@ -75,12 +75,7 @@ const CreateProjectModal = ({ isOpen, onClose }: Props) => {
         </DialogHeader>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit((data) => {
-              onSubmit(data);
-            })}
-            className="space-y-8"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
               name="title"
@@ -145,7 +140,9 @@ const CreateProjectModal = ({ isOpen, onClose }: Props) => {
               )}
             />
             {error !== "" && <p className="text-red-600 text-sm">{error}</p>}
-            <Button type="submit">Submit</Button>
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Creating..." : "Submit"}
+            </Button>
           </form>
         </Form>
       </DialogContent>
