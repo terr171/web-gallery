@@ -12,7 +12,6 @@ import {
 import { cn } from "@/lib/utils";
 import { auth, signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
-import CreateButton from "@/features/project/components/CreateButton";
 import { UserRole } from "@/database/schema";
 
 const Header = async () => {
