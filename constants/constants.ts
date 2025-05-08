@@ -1,4 +1,4 @@
-const userAvatarUrls = [
+export const userAvatarUrls = [
   "https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_1.png",
   "https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_2.png",
   "https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_3.png",
