@@ -31,3 +31,13 @@ export const formatDate = (dateString: string) => {
     return "Invalid Date";
   }
 };
+
+/**
+ * Randomly selects an avatar URL from the userAvatarUrls array.
+ * @returns {string} A randomly selected avatar URL.
+ */
+function getRandomAvatar() {
+  const randomIndex = Math.floor(Math.random() * userAvatarUrls.length);
+
+  return userAvatarUrls[randomIndex];
+}
