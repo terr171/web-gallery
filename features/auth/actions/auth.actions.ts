@@ -12,6 +12,7 @@ import {
   registerSchema,
 } from "@/features/auth/lib/validations";
 import { validateInput } from "@/lib/actions-utility";
+import { getRandomAvatar } from "@/lib/utils";
 
 /**
  * Attempts to log in a user using provided credentials.
@@ -87,6 +88,7 @@ export const register = async (input: RegisterInput): Promise<ActionResult> => {
       username: username,
       email: email,
       passwordHash: hashedPassword,
+      avatarUrl: getRandomAvatar(),
     });
     await login({ email: email, password: password });
     return { success: true, response: null };
