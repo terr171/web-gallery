@@ -650,19 +650,3 @@ export const getFeaturedProjects = async (): Promise<
     };
   }
 };
-
-/**
- * Returns a cached result of getFeaturedProjects.
- * Revalidates every hour.
- */
-export const getCachedFeaturedProjects: () => Promise<
-  ActionResult<FeaturedProjects>
-> = unstable_cache(
-  async (): Promise<ActionResult<FeaturedProjects>> => {
-    return await getFeaturedProjects();
-  },
-  ["featuredProjects"],
-  {
-    revalidate: 3600,
-  },
-);
