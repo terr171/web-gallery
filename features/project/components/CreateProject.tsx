@@ -79,7 +79,9 @@ const CreateProject = ({ isOwner = false, project }: Props) => {
   }, []);
 
   useEffect(() => {
-    setSrcDoc(`
+    const debounceTimer = setTimeout(() => {
+      console.log("DD");
+      setSrcDoc(`
         <!DOCTYPE html>
         <html >
         <head>
@@ -91,6 +93,11 @@ const CreateProject = ({ isOwner = false, project }: Props) => {
         </body>
       </html>
       `);
+    }, 300);
+
+    return () => {
+      clearTimeout(debounceTimer);
+    };
   }, [projectHtml, projectCss, projectJavascript]);
 
   const runCode = () => {
