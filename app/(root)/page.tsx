@@ -4,12 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Share2 } from "lucide-react";
 import Link from "next/link";
 import CreateButton from "@/features/project/components/CreateButton";
-import { auth } from "@/auth";
 
 import MakeMeAdminButton from "@/components/shared/MakeMeAdminButton";
-const Page = async () => {
-  const session = await auth();
-
+import { SessionProvider } from "next-auth/react";
+const Page = () => {
   return (
     <section className="h-full w-full py-12 md:py-24 lg:py-32 ">
       <div className="container mx-auto px-4 md:px-6 h-full flex flex-col justify-center">
@@ -32,7 +30,9 @@ const Page = async () => {
                   Explore Gallery
                 </Button>
               </Link>
-              {session && <MakeMeAdminButton />}
+              <SessionProvider>
+                <MakeMeAdminButton />
+              </SessionProvider>
             </div>
           </div>
           <div className="flex items-center justify-center">
