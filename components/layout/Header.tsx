@@ -20,7 +20,7 @@ const Header = () => {
       <Link href="/" className="shrink-0">
         <h1 className="text-xl font-bold">Web Gallery</h1>
       </Link>
-      <div className="flex flex-row w-full justify-end md:justify-between">
+      <div className="flex flex-row w-full justify-between pl-4">
         <NavigationMenu className="">
           <NavigationMenuList>
             <NavigationMenuItem>
