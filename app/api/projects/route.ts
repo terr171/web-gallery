@@ -9,10 +9,7 @@ export async function GET(request: NextRequest) {
   const validationResult = getProjectsSchema.safeParse(queryParamsObject);
 
   if (!validationResult.success) {
-    return NextResponse.json(
-      { message: "Invalid query parameters" },
-      { status: 400 },
-    );
+    return NextResponse.json("Invalid query parameters", { status: 400 });
   }
 
   const projectsInput = validationResult.data;
