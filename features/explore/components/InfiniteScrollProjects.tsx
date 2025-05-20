@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { GetProjectsInput } from "@/features/project/lib/validations";
 import { ProjectData } from "@/features/project/lib/project.types";
-import { getProjects } from "@/features/project/queries/project.queries";
 
 const InfiniteScrollProjects = ({
   initialProjects,
@@ -41,22 +40,42 @@ const InfiniteScrollProjects = ({
       return;
     }
     if (!hasMore || loading) return;
-
     setLoading(true);
-    const queryProjects = await getProjects({ offset: offset, ...options });
-    if (!queryProjects.success) {
-      toast.error(queryProjects.error);
-      setError(queryProjects.error);
-      setHasMore(false);
-    } else {
-      const newProjects: ProjectData[] = queryProjects.response;
-      if (newProjects.length === 0) {
+    const params = new URLSearchParams();
+    params.append("offset", offset.toString());
+    params.append("limit", NUMBER_OF_NEW_PROJECTS.toString());
+    if (options?.order) params.append("order", options.order);
+    if (options?.sortBy) params.append("sortBy", options.sortBy);
+    if (options?.username) params.append("username", options.username);
+    if (options?.searchText) params.append("searchText", options.searchText);
+    if (options?.type) params.append("type", options.type);
+    try {
+      const response = await fetch(`/api/projects?${params.toString()}`);
+
+      if (!response.ok) {
+        const errorData = {
+          error: `Failed to load projects. Status: ${response.status}`,
+        };
+        toast.error(errorData.error);
+        setError(errorData.error);
         setHasMore(false);
       } else {
-        setProjects((prevProjects) => [...prevProjects, ...newProjects]);
-        setOffset((prevOffset) => prevOffset + newProjects.length);
-        setHasMore(newProjects.length === NUMBER_OF_NEW_PROJECTS);
+        const newProjects: ProjectData[] = await response.json();
+
+        if (newProjects.length === 0) {
+          setHasMore(false);
+        } else {
+          setProjects((prevProjects) => [...prevProjects, ...newProjects]);
+          setOffset((prevOffset) => prevOffset + newProjects.length);
+          setHasMore(newProjects.length === NUMBER_OF_NEW_PROJECTS);
+        }
       }
+    } catch {
+      toast.error("Unexpected network error occurred.");
+      setError("Unexpected network error occurred.");
+      setHasMore(false);
+    } finally {
+      setLoading(false);
     }
     setLoading(false);
   }, [hasMore, loading, error, offset, optionsString, NUMBER_OF_NEW_PROJECTS]);
