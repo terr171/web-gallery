@@ -1,7 +1,6 @@
 import React from "react";
 import Link from "next/link";
 import { Eye, Heart, MessageSquare } from "lucide-react";
-import { ProjectData } from "@/features/project/actions/project.actions";
 import { FileTypes } from "@/database/schema";
 import {
   Card,
@@ -12,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ProjectData } from "@/features/project/lib/project.types";
 
 const ProjectCard = ({ project }: { project: ProjectData }) => {
   const {

@@ -43,7 +43,6 @@ import {
 import {
   deleteProject,
   getProjectDataByPublicId,
-  ProjectData,
 } from "@/features/project/actions/project.actions";
 import { Input } from "@/components/ui/input";
 import { PostTypes, ProjectVisibility } from "@/database/schema";
@@ -55,6 +54,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import ProjectModal from "@/features/project/components/ProjectModal";
+import { ProjectData } from "@/features/project/lib/project.types";
 
 const sortableColumnHeaders = Object.entries(ProjectSortByTypesForAdmin);
 const DEBOUNCE_DELAY = 300;

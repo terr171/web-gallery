@@ -1,9 +1,7 @@
 import ProjectModal from "@/features/project/components/ProjectModal";
-import {
-  getProjectDataByPublicId,
-  ProjectData,
-} from "@/features/project/actions/project.actions";
+import { getProjectDataByPublicId } from "@/features/project/actions/project.actions";
 import ErrorMessage from "@/components/shared/ErrorMessage";
+import { ProjectData } from "@/features/project/lib/project.types";
 
 const Page = async ({ params }: { params: Promise<{ publicId: string }> }) => {
   const { publicId } = await params;

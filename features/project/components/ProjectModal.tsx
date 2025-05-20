@@ -14,11 +14,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Calendar, Eye, Heart, MessageSquare, Trash2, X } from "lucide-react";
-import {
-  CommentData,
-  deleteProject,
-  ProjectData,
-} from "@/features/project/actions/project.actions";
+import { deleteProject } from "@/features/project/actions/project.actions";
 import { Button } from "@/components/ui/button";
 import {
   checkProjectLike,
@@ -35,6 +31,7 @@ import { getAvatarUrl } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
+import { CommentData, ProjectData } from "@/features/project/lib/project.types";
 
 interface ProjectModalProps {
   project: ProjectData;

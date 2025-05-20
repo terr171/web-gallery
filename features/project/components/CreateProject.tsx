@@ -6,7 +6,6 @@ import { Loader2, Play, Save, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   deleteProject,
-  ProjectData,
   updateProjectFiles,
 } from "@/features/project/actions/project.actions";
 import {
@@ -41,6 +40,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
+import { ProjectData } from "@/features/project/lib/project.types";
 
 interface Props {
   isOwner?: boolean;

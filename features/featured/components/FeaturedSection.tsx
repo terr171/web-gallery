@@ -1,7 +1,7 @@
 import React from "react";
-import { ProjectData } from "@/features/project/actions/project.actions";
 import ProjectCard from "@/features/project/components/ProjectCard";
 import { cn } from "@/lib/utils";
+import { ProjectData } from "@/features/project/lib/project.types";
 
 const FeaturedSection = ({
   title,

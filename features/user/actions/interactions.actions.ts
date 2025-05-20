@@ -8,7 +8,6 @@ import {
 } from "@/database/schema/schema";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/database/drizzle";
-import { CommentData } from "@/features/project/actions/project.actions";
 import { checkPermission } from "@/features/authz/authz";
 
 import { getUserFromSession, validateInput } from "@/lib/actions-utility";
@@ -22,6 +21,7 @@ import {
   usernameSchema,
 } from "@/features/user/lib/validations";
 import { revalidatePath } from "next/cache";
+import { CommentData } from "@/features/project/lib/project.types";
 
 // ============================================================================
 // Helper Functions
