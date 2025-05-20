@@ -255,18 +255,25 @@ const ProjectsTable = () => {
   const handleProjectView = async (publicId: string) => {
     setLoadingProjectId(publicId);
     setSelectedProjectForModal(null);
-    const fetchProject = await getProjectDataByPublicId({
-      publicId: publicId,
-      includeFiles: true,
-      includeComments: true,
-    });
-    if (!fetchProject.success) {
-      toast.error(fetchProject.error);
+    try {
+      const url = `/api/project/${publicId}?includeFiles=true&includeComments=true`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        toast.error("Unknown Error Occurred");
+        setSelectedProjectForModal(null);
+      } else {
+        const projectData: ProjectData = await response.json();
+        setSelectedProjectForModal(projectData);
+      }
+    } catch (error) {
+      console.error("Failed to fetch project data:", error);
+      toast.error(
+        "An unexpected error occurred while fetching project details.",
+      );
       setSelectedProjectForModal(null);
-    } else {
-      setSelectedProjectForModal(fetchProject.response);
+    } finally {
+      setLoadingProjectId(null);
     }
-    setLoadingProjectId(null);
   };
 
   const handleCloseModal = () => {
