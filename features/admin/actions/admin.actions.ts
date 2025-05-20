@@ -2,14 +2,7 @@
 
 import { db } from "@/database/drizzle";
 import { and, asc, count, desc, eq, ilike, SQL, sql } from "drizzle-orm";
-import {
-  comments,
-  PostTypes,
-  projects,
-  ProjectVisibility,
-  UserRole,
-  users,
-} from "@/database/schema";
+import { comments, projects, UserRole, users } from "@/database/schema";
 import { getUserFromSession, validateInput } from "@/lib/actions-utility";
 import { checkPermission } from "@/features/authz/authz";
 import { OrderByTypes } from "@/features/search/lib/types";
@@ -27,40 +20,10 @@ import {
   GetUsersOutputForAdmin,
   getUsersSchemaForAdmin,
 } from "@/features/admin/lib/validations";
-
-// ============================================================================
-// Type Definitions
-// ============================================================================
-
-/**
- * Shape of project data specifically formatted for the admin table UI.
- */
-export type AdminTableProjectsInfo = {
-  id: string;
-  title: string;
-  type: PostTypes;
-  views: number;
-  likesCount: number;
-  commentsCount: number;
-  createdAt: Date;
-  updatedAt: Date;
-  publicId: string;
-  visibility: ProjectVisibility;
-  userId: string;
-  username: string;
-};
-
-/**
- * Shape of user data specifically formatted for the admin table UI.
- */
-export type AdminTableUserInfo = {
-  id: string;
-  username: string;
-  email: string;
-  createdAt: Date;
-  avatarUrl: string | null;
-  role: UserRole;
-};
+import {
+  AdminTableProjectsInfo,
+  AdminTableUserInfo,
+} from "@/features/admin/lib/admin.types";
 
 // ============================================================================
 // Constants

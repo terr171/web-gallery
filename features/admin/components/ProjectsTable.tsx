@@ -28,7 +28,6 @@ import {
   ProjectSortByTypesForAdmin,
 } from "@/features/search/lib/types";
 import {
-  AdminTableProjectsInfo,
   getProjects,
   getTotalProjects,
 } from "@/features/admin/actions/admin.actions";
@@ -55,6 +54,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import ProjectModal from "@/features/project/components/ProjectModal";
 import { ProjectData } from "@/features/project/lib/project.types";
+import { AdminTableProjectsInfo } from "@/features/admin/lib/admin.types";
 
 const sortableColumnHeaders = Object.entries(ProjectSortByTypesForAdmin);
 const DEBOUNCE_DELAY = 300;
