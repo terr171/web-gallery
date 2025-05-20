@@ -45,8 +45,8 @@ export const getProjectsSchema = z.object({
   username: z.string().optional(),
   searchText: z.string().optional(),
   type: z.nativeEnum(PostTypes).optional(),
-  limit: z.number().int().positive().max(50).optional().default(9),
-  offset: z.number().int().nonnegative().optional().default(0),
+  limit: z.coerce.number().int().positive().max(50).optional().default(9),
+  offset: z.coerce.number().int().nonnegative().optional().default(0),
 });
 
 export type GetProjectsInput = z.input<typeof getProjectsSchema>;
