@@ -22,6 +22,7 @@ export function validateInput<T>(
     return {
       success: false,
       error: `Invalid input: ${formattedErrors}`,
+      code: 400,
     };
   }
   return { success: true, response: result.data };
