@@ -1,13 +1,3 @@
-"use server";
-
-import { db } from "@/database/drizzle";
-import {
-  projectLikes,
-  projects,
-  userFollows,
-  users,
-} from "@/database/schema/schema";
-import { count, desc, eq, sum } from "drizzle-orm";
 import {
   GetFollowsInput,
   GetFollowsOutput,
@@ -15,16 +5,11 @@ import {
   GetUserDataInput,
   getUserDataSchema,
 } from "@/features/user/lib/validations";
-import { validateInput } from "@/lib/actions-utility";
 import { UserProfile } from "@/features/user/lib/user.types";
-
-// ============================================================================
-// Type Definitions
-// ============================================================================
-
-// ============================================================================
-// Action Functions
-// ============================================================================
+import { validateInput } from "@/lib/actions-utility";
+import { db } from "@/database/drizzle";
+import { count, desc, eq, sum } from "drizzle-orm";
+import { projectLikes, projects, userFollows, users } from "@/database/schema";
 
 /**
  * Fetches comprehensive data for a user's profile, including aggregated stats.
