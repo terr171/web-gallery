@@ -4,6 +4,7 @@ import { db } from "@/database/drizzle";
 import { projectLikes, userFollows, users } from "@/database/schema";
 import { and, eq } from "drizzle-orm";
 import { UsernameInput, usernameSchema } from "@/features/user/lib/validations";
+import { getProjectIdByPublicId } from "@/lib/actions/actions";
 
 /**
  * Checks if the currently logged-in user has liked a specific project.
