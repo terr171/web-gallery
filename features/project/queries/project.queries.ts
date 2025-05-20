@@ -111,6 +111,7 @@ export const getProjectDataByPublicId = async (
       return {
         success: false,
         error: "Project not found",
+        code: 404,
       };
     }
     // Check for ownership
@@ -133,7 +134,7 @@ export const getProjectDataByPublicId = async (
     };
   } catch (error) {
     console.log(error);
-    return { success: false, error: "Failed to retrieve project" };
+    return { success: false, error: "Failed to retrieve project", code: 500 };
   }
 };
 
@@ -236,7 +237,7 @@ export async function getProjects(
     };
   } catch (error) {
     console.error("Failed to retrieve projects:", error);
-    return { success: false, error: "Failed to retrieve projects" };
+    return { success: false, error: "Failed to retrieve projects", code: 500 };
   }
 }
 
@@ -325,6 +326,7 @@ export const getFeaturedProjects = async (): Promise<
     return {
       success: false,
       error: "Server Error. Failed to get featured projects",
+      code: 500,
     };
   }
 };
