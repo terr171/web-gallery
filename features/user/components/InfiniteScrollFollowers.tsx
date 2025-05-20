@@ -8,15 +8,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  getFollowers,
-  UserProfile,
-} from "@/features/user/actions/user.actions";
+import { getFollowers } from "@/features/user/actions/user.actions";
 import { Separator } from "@/components/ui/separator";
 import { getAvatarUrl } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
+import { UserProfile } from "@/features/user/lib/user.types";
 
 const NUMBER_OF_NEW_USERS = 10;
 

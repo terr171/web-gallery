@@ -7,7 +7,7 @@ import {
   userFollows,
   users,
 } from "@/database/schema/schema";
-import { count, eq, desc, sum } from "drizzle-orm";
+import { count, desc, eq, sum } from "drizzle-orm";
 import {
   GetFollowsInput,
   GetFollowsOutput,
@@ -16,22 +16,11 @@ import {
   getUserDataSchema,
 } from "@/features/user/lib/validations";
 import { validateInput } from "@/lib/actions-utility";
+import { UserProfile } from "@/features/user/lib/user.types";
 
 // ============================================================================
 // Type Definitions
 // ============================================================================
-
-/**
- * Represents the data displayed on a user's public profile page.
- * Includes basic info and aggregated statistics.
- */
-export type UserProfile = {
-  username: string;
-  avatarUrl: string | null;
-  totalLikes?: number;
-  totalFollows?: number;
-  totalViews?: number;
-};
 
 // ============================================================================
 // Action Functions
