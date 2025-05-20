@@ -5,10 +5,9 @@ import { getProjectDataByPublicId } from "@/features/project/queries/project.que
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { publicId: string } },
+  { params }: { params: Promise<{ publicId: string }> },
 ) {
-  const { publicId } = params;
-
+  const { publicId } = await params;
   const searchParams = request.nextUrl.searchParams;
   const includeFiles = searchParams.get("includeFiles") === "true";
   const includeComments = searchParams.get("includeComments") === "true";
