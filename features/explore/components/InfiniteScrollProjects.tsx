@@ -1,12 +1,12 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { getProjects } from "@/features/project/actions/project.actions";
 import ProjectCard from "@/features/project/components/ProjectCard";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { GetProjectsInput } from "@/features/project/lib/validations";
 import { ProjectData } from "@/features/project/lib/project.types";
+import { getProjects } from "@/features/project/queries/project.queries";
 
 const InfiniteScrollProjects = ({
   initialProjects,

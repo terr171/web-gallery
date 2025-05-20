@@ -1,7 +1,7 @@
 import React from "react";
 import ProjectModal from "@/features/project/components/ProjectModal";
-import { getProjectDataByPublicId } from "@/features/project/actions/project.actions";
 import { ProjectData } from "@/features/project/lib/project.types";
+import { getProjectDataByPublicId } from "@/features/project/queries/project.queries";
 
 const Page = async ({ params }: { params: Promise<{ publicId: string }> }) => {
   const { publicId } = await params;

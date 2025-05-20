@@ -1,5 +1,4 @@
 import React from "react";
-import { getProjects } from "@/features/project/actions/project.actions";
 import SearchBar from "@/features/search/components/SearchBar";
 import SelectProjectType from "@/features/search/components/SelectProjectType";
 import InfiniteScrollProjects from "@/features/explore/components/InfiniteScrollProjects";
@@ -8,6 +7,7 @@ import { PostTypes } from "@/database/schema";
 
 import SelectOrderBy from "@/features/search/components/SelectOrderBy";
 import { OrderByTypes, ProjectSortByTypes } from "@/features/search/lib/types";
+import { getProjects } from "@/features/project/queries/project.queries";
 
 const Page = async ({
   searchParams,

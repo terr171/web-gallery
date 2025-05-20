@@ -1,6 +1,7 @@
 import React from "react";
 import FeaturedSection from "@/features/featured/components/FeaturedSection";
-import { getFeaturedProjects } from "@/features/project/actions/project.actions";
+
+import { getFeaturedProjects } from "@/features/project/queries/project.queries";
 
 export const revalidate = 3600;
 

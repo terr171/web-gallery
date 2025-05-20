@@ -1,9 +1,9 @@
 import React from "react";
 
 import CreateProject from "@/features/project/components/CreateProject";
-import { getProjectDataByPublicId } from "@/features/project/actions/project.actions";
 import { incrementProjectViews } from "@/features/user/actions/interactions.actions";
 import ErrorMessage from "@/components/shared/ErrorMessage";
+import { getProjectDataByPublicId } from "@/features/project/queries/project.queries";
 
 const Page = async ({
   params,

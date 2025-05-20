@@ -4,10 +4,10 @@ import { notFound } from "next/navigation";
 
 import { getUserData } from "@/features/user/actions/user.actions";
 import UserProfile from "@/features/user/components/UserProfile";
-import { getProjects } from "@/features/project/actions/project.actions";
 import { checkUserFollow } from "@/features/user/actions/interactions.actions";
 import { auth } from "@/auth";
 import InfiniteScrollProjects from "@/features/explore/components/InfiniteScrollProjects";
+import { getProjects } from "@/features/project/queries/project.queries";
 
 const Page = async ({ params }: { params: Promise<{ username: string }> }) => {
   const { username } = await params;

@@ -39,10 +39,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import {
-  deleteProject,
-  getProjectDataByPublicId,
-} from "@/features/project/actions/project.actions";
+import { deleteProject } from "@/features/project/actions/project.actions";
 import { Input } from "@/components/ui/input";
 import { PostTypes, ProjectVisibility } from "@/database/schema";
 import {
@@ -55,6 +52,7 @@ import { Badge } from "@/components/ui/badge";
 import ProjectModal from "@/features/project/components/ProjectModal";
 import { ProjectData } from "@/features/project/lib/project.types";
 import { AdminTableProjectsInfo } from "@/features/admin/lib/admin.types";
+import { getProjectDataByPublicId } from "@/features/project/queries/project.queries";
 
 const sortableColumnHeaders = Object.entries(ProjectSortByTypesForAdmin);
 const DEBOUNCE_DELAY = 300;
