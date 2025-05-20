@@ -36,7 +36,7 @@ export function validateInput<T>(
 export const getUserFromSession = async (): Promise<ActionResult<Session>> => {
   const session = await auth();
   if (!session) {
-    return { success: false, error: "You must be logged in" };
+    return { success: false, error: "You must be logged in", code: 401 };
   }
   return {
     success: true,
