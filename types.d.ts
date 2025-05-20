@@ -15,6 +15,7 @@ type ActionSuccess<T = null> = {
 type ActionError = {
   success: false;
   error: string;
+  code?: number;
 };
 
 /**
