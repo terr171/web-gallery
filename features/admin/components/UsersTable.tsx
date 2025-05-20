@@ -26,10 +26,6 @@ import { ArrowUpDown, Loader2, RotateCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OrderByTypes, UserSortByTypes } from "@/features/search/lib/types";
 import DynamicPagination from "@/features/admin/components/DynamicPagination";
-import {
-  getTotalUsers,
-  getUsers,
-} from "@/features/admin/actions/admin.actions";
 import { toast } from "sonner";
 import SelectEntries from "@/features/admin/components/SelectEntries";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +33,10 @@ import { UserRole } from "@/database/schema";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { AdminTableUserInfo } from "@/features/admin/lib/admin.types";
+import {
+  getTotalUsers,
+  getUsers,
+} from "@/features/admin/queries/admin.queries";
 
 const sortableColumnHeaders = Object.entries(UserSortByTypes);
 const DEBOUNCE_DELAY = 300;

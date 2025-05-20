@@ -1,12 +1,13 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Code, Eye, MessageCircleMore, Users } from "lucide-react";
+
 import {
   getTotalNumberOfComments,
   getTotalNumberOfProjects,
   getTotalNumberOfUsers,
   getTotalNumberOfViews,
-} from "@/features/admin/actions/admin.actions";
+} from "@/features/admin/queries/admin.queries";
 const InfoCard = async () => {
   const [
     totalUsersResult,

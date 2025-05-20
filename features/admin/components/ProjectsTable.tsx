@@ -27,10 +27,6 @@ import {
   OrderByTypes,
   ProjectSortByTypesForAdmin,
 } from "@/features/search/lib/types";
-import {
-  getProjects,
-  getTotalProjects,
-} from "@/features/admin/actions/admin.actions";
 import { toast } from "sonner";
 import DynamicPagination from "@/features/admin/components/DynamicPagination";
 import SelectEntries from "@/features/admin/components/SelectEntries";
@@ -53,6 +49,10 @@ import ProjectModal from "@/features/project/components/ProjectModal";
 import { ProjectData } from "@/features/project/lib/project.types";
 import { AdminTableProjectsInfo } from "@/features/admin/lib/admin.types";
 import { getProjectDataByPublicId } from "@/features/project/queries/project.queries";
+import {
+  getProjects,
+  getTotalProjects,
+} from "@/features/admin/queries/admin.queries";
 
 const sortableColumnHeaders = Object.entries(ProjectSortByTypesForAdmin);
 const DEBOUNCE_DELAY = 300;
