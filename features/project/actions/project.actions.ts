@@ -51,11 +51,7 @@ export const createProject = async (
     action: "create",
     resource: "post",
   });
-  if (!permission)
-    return {
-      success: false,
-      error: "You do not have permission to create a project",
-    };
+  if (!permission.success) return permission;
 
   // #4. Query Database and insert new entries
   try {
@@ -153,11 +149,7 @@ export const updateProjectFiles = async (
       resource: "post",
       resourceOwnerId: ownerId,
     });
-    if (!permission)
-      return {
-        success: false,
-        error: "You do not have permission to update this project",
-      };
+    if (!permission.success) return permission;
 
     // #4. Insert new files and properties to the database
     const newFilesMap = {
@@ -236,11 +228,7 @@ export const deleteProject = async (
       resource: "post",
       resourceOwnerId: ownerId,
     });
-    if (!permission)
-      return {
-        success: false,
-        error: "You do not have permission to delete this project",
-      };
+    if (!permission.success) return permission;
 
     await db.delete(projects).where(eq(projects.publicId, publicId));
     revalidateOnProjectChange(checkAuth.response.user.name);

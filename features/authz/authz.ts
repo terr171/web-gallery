@@ -78,23 +78,39 @@ export const checkPermission = ({
   action: Action;
   resource: ResourceType;
   resourceOwnerId?: string;
-}) => {
+}): ActionResult => {
   const role = user ? user.role : "viewer";
   const permissions = PERMISSIONS[role];
 
   if (!permissions || !permissions.includes(`${action}:${resource}`))
-    return false;
+    return {
+      success: false,
+      error: "Forbidden Access:  User does not have permission",
+      code: 403,
+    };
 
   const needsOwnershipCheck =
     OWNERSHIP_REQUIRED_ACTIONS[resource]?.includes(action) ?? false;
 
   if (needsOwnershipCheck && role !== UserRole.Admin) {
     if (!user?.id || !resourceOwnerId) {
-      return false;
+      return {
+        success: false,
+        error: "Forbidden Access: User does not have permission",
+        code: 403,
+      };
     }
 
-    return user.id === resourceOwnerId;
+    if (user.id === resourceOwnerId) {
+      return { success: true, response: null };
+    } else {
+      return {
+        success: false,
+        error: "Forbidden: User does not own the resource.",
+        code: 403,
+      };
+    }
   }
 
-  return true;
+  return { success: true, response: null };
 };

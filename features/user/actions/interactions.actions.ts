@@ -59,11 +59,7 @@ export async function createComment(
     resource: "comment",
   });
 
-  if (!permission)
-    return {
-      success: false,
-      error: "You do not have permission to create a comment",
-    };
+  if (!permission.success) return permission;
 
   // #4. Query database and insert data
   try {
@@ -147,11 +143,7 @@ export async function deleteComment(
       resourceOwnerId: commentToDelete.userId,
     });
 
-    if (!permission)
-      return {
-        success: false,
-        error: "You do not have permission to delete this comment",
-      };
+    if (!permission.success) return permission;
 
     // #4. Query database and delete comment
     const projectId = commentToDelete.projectId;
@@ -204,11 +196,7 @@ export async function likeProject(input: PublicIdInput): Promise<ActionResult> {
     resource: "post",
   });
 
-  if (!permission)
-    return {
-      success: false,
-      error: "You do not have permission to like this project",
-    };
+  if (!permission.success) return permission;
 
   // #4. Query Database
   try {
@@ -291,11 +279,7 @@ export async function unlikeProject(
     resource: "post",
   });
 
-  if (!permission)
-    return {
-      success: false,
-      error: "You do not have permission to unlike this project",
-    };
+  if (!permission.success) return permission;
 
   // #4. Query Database
   try {
@@ -378,11 +362,8 @@ export async function followUser(input: UsernameInput): Promise<ActionResult> {
     action: "follow",
     resource: "user",
   });
-  if (!permission)
-    return {
-      success: false,
-      error: "You do not have permission to follow this user",
-    };
+  if (!permission.success) return permission;
+
   // #4. Query Database and add entry
   try {
     const userResult = await db
@@ -457,11 +438,7 @@ export async function unfollowUser(
     action: "follow",
     resource: "user",
   });
-  if (!permission)
-    return {
-      success: false,
-      error: "You do not have permission to unfollow this user",
-    };
+  if (!permission.success) return permission;
 
   // #4. Query Database
   try {

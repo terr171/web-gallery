@@ -64,11 +64,7 @@ export const getTotalNumberOfUsers = async (): Promise<
     action: "view_statistics",
     resource: "admin_dashboard",
   });
-  if (!permission)
-    return {
-      success: false,
-      error: "You do not have permission to view statistics.",
-    };
+  if (!permission.success) return permission;
   try {
     // #3. Database Query: Count all entries in the users table.
     const result = await db
@@ -102,11 +98,8 @@ export const getTotalNumberOfProjects = async (): Promise<
     action: "view_statistics",
     resource: "admin_dashboard",
   });
-  if (!permission)
-    return {
-      success: false,
-      error: "You do not have permission to view statistics.",
-    };
+  if (!permission.success) return permission;
+
   try {
     const result = await db
       .select({
@@ -140,11 +133,8 @@ export const getTotalNumberOfComments = async (): Promise<
     action: "view_statistics",
     resource: "admin_dashboard",
   });
-  if (!permission)
-    return {
-      success: false,
-      error: "You do not have permission to view statistics.",
-    };
+  if (!permission.success) return permission;
+
   try {
     const result = await db
       .select({
@@ -178,11 +168,8 @@ export const getTotalNumberOfViews = async (): Promise<
     action: "view_statistics",
     resource: "admin_dashboard",
   });
-  if (!permission)
-    return {
-      success: false,
-      error: "You do not have permission to view statistics.",
-    };
+  if (!permission.success) return permission;
+
   try {
     const result = await db
       .select({
@@ -232,11 +219,8 @@ export const getUsers = async (
     action: "manage",
     resource: "user",
   });
-  if (!permission)
-    return {
-      success: false,
-      error: "You do not have permission to manage users.",
-    };
+  if (!permission.success) return permission;
+
   try {
     const conditions: SQL[] = [];
     if (searchText) conditions.push(ilike(users.username, `%${searchText}%`));
@@ -293,11 +277,8 @@ export const getTotalUsers = async (
     action: "manage",
     resource: "user",
   });
-  if (!permission)
-    return {
-      success: false,
-      error: "You do not have permission to manage users.",
-    };
+  if (!permission.success) return permission;
+
   try {
     const conditions: SQL[] = [];
     if (searchText) conditions.push(ilike(users.username, `%${searchText}%`));
@@ -343,11 +324,7 @@ export const getProjects = async (
     action: "manage",
     resource: "post",
   });
-  if (!permission)
-    return {
-      success: false,
-      error: "You do not have permission to manage projects.",
-    };
+  if (!permission.success) return permission;
 
   try {
     const conditions: SQL[] = [];
@@ -416,11 +393,8 @@ export const getTotalProjects = async (
     action: "manage",
     resource: "post",
   });
-  if (!permission)
-    return {
-      success: false,
-      error: "You do not have permission to manage posts.",
-    };
+  if (!permission.success) return permission;
+
   try {
     const conditions: SQL[] = [];
     if (searchText) conditions.push(ilike(projects.title, `%${searchText}%`));
