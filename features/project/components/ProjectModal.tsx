@@ -17,7 +17,6 @@ import { Calendar, Eye, Heart, MessageSquare, Trash2, X } from "lucide-react";
 import { deleteProject } from "@/features/project/actions/project.actions";
 import { Button } from "@/components/ui/button";
 import {
-  checkProjectLike,
   createComment,
   deleteComment,
   incrementProjectViews,
@@ -32,6 +31,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { CommentData, ProjectData } from "@/features/project/lib/project.types";
+import { checkProjectLike } from "@/features/user/queries/interactions.queries";
 
 interface ProjectModalProps {
   project: ProjectData;
