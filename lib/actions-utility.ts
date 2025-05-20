@@ -1,7 +1,6 @@
 import { ZodSchema } from "zod";
 import { Session } from "next-auth";
 import { auth } from "@/auth";
-import { revalidatePath } from "next/cache";
 
 /**
  * Validates input data against a Zod schema.
@@ -42,16 +41,4 @@ export const getUserFromSession = async (): Promise<ActionResult<Session>> => {
     success: true,
     response: session,
   };
-};
-
-/**
- * Function to revalidate cache when a user creates, updates, or deletes a project
- *
- * @param username username of the owner of project that was modified
- */
-
-export const revalidateOnProjectChange = (username: string) => {
-  revalidatePath("/featured");
-  revalidatePath("/explore");
-  revalidatePath(`/user/${username}`);
 };

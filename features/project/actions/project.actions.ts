@@ -5,11 +5,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/database/drizzle";
 import { checkPermission } from "@/features/authz/authz";
 
-import {
-  getUserFromSession,
-  revalidateOnProjectChange,
-  validateInput,
-} from "@/lib/actions-utility";
+import { getUserFromSession, validateInput } from "@/lib/actions-utility";
 import {
   CreateProjectInput,
   createProjectSchema,
@@ -18,6 +14,7 @@ import {
   UpdateProjectFilesInput,
   updateProjectFilesSchema,
 } from "@/features/project/lib/validations";
+import { revalidateOnProjectChange } from "@/lib/server-utils";
 
 // ============================================================================
 // Main Action Functions
