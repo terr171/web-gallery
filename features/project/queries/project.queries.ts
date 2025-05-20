@@ -115,16 +115,12 @@ export const getProjectDataByPublicId = async (
       };
     }
     // Check for ownership
-    const checkAuth = await getUserFromSession();
-    const loggedInUserId = checkAuth.success
-      ? checkAuth.response.user.id
-      : null;
-    const isProjectOwner = project.userId === loggedInUserId;
+    const isProjectOwner = project.userId === currentUserId;
 
     if (project.comments) {
       project.comments.forEach((comment) => {
-        (comment as CommentData).isOwner = loggedInUserId
-          ? comment.userId === loggedInUserId
+        (comment as CommentData).isOwner = currentUserId
+          ? comment.userId === currentUserId
           : false;
       });
     }
