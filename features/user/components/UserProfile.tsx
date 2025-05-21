@@ -10,7 +10,6 @@ import {
 } from "@/features/user/actions/interactions.actions";
 import { toast } from "sonner";
 import InfiniteScrollFollowers from "@/features/user/components/InfiniteScrollFollowers";
-import { useRouter } from "next/navigation";
 
 interface Props {
   username: string;
@@ -33,7 +32,6 @@ const UserProfile = ({
 }: Props) => {
   const [following, setFollowing] = useState<boolean>(isFollowing);
   const [followerCount, setFollowerCount] = useState<number>(totalFollows);
-  const router = useRouter();
   const profileImage = getAvatarUrl(avatarUrl);
   const handleFollow = async () => {
     const toggleFollow = following
