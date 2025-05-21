@@ -2,9 +2,6 @@ import {
   GetProjectsInputForAdmin,
   GetProjectsOutputForAdmin,
   getProjectsSchemaForAdmin,
-  GetTotalProjectsInputForAdmin,
-  GetTotalProjectsOutputForAdmin,
-  getTotalProjectsSchemaForAdmin,
   GetUsersInputForAdmin,
   GetUsersOutputForAdmin,
   getUsersSchemaForAdmin,
@@ -269,7 +266,9 @@ export const getUsers = async (
  */
 export const getProjects = async (
   input: GetProjectsInputForAdmin,
-): Promise<ActionResult<AdminTableProjectsInfo[]>> => {
+): Promise<
+  ActionResult<{ projects: AdminTableProjectsInfo[]; totalCount: number }>
+> => {
   // #1. Data Validation
   const validateResult = validateInput(getProjectsSchemaForAdmin, input);
   if (!validateResult.success) {
@@ -299,83 +298,42 @@ export const getProjects = async (
     const sortColumn = projectsSortOption[sortBy];
     const sortFunction = order === OrderByTypes.Ascending ? asc : desc;
 
-    const queryProjects = await db
-      .select({
-        id: projects.id,
-        username: users.username,
-        userId: users.id,
-        title: projects.title,
-        type: projects.type,
-        views: projects.views,
-        likesCount: projects.likesCount,
-        commentsCount: projects.commentsCount,
-        createdAt: projects.createdAt,
-        updatedAt: projects.updatedAt,
-        publicId: projects.publicId,
-        visibility: projects.visibility,
-      })
-      .from(projects)
-      .leftJoin(users, eq(users.id, projects.userId))
-      .where(and(...conditions))
-      .limit(limit)
-      .offset(offset)
-      .orderBy(sortFunction(sortColumn));
-
+    const [queryProjects, queryTotalCount] = await Promise.all([
+      db
+        .select({
+          id: projects.id,
+          username: users.username,
+          userId: users.id,
+          title: projects.title,
+          type: projects.type,
+          views: projects.views,
+          likesCount: projects.likesCount,
+          commentsCount: projects.commentsCount,
+          createdAt: projects.createdAt,
+          updatedAt: projects.updatedAt,
+          publicId: projects.publicId,
+          visibility: projects.visibility,
+        })
+        .from(projects)
+        .leftJoin(users, eq(users.id, projects.userId))
+        .where(and(...conditions))
+        .limit(limit)
+        .offset(offset)
+        .orderBy(sortFunction(sortColumn)),
+      db
+        .select({ count: count() })
+        .from(projects)
+        .where(and(...conditions)),
+    ]);
     return {
       success: true,
-      response: queryProjects as AdminTableProjectsInfo[],
+      response: {
+        projects: queryProjects as AdminTableProjectsInfo[],
+        totalCount: queryTotalCount[0].count,
+      },
     };
   } catch (error) {
     console.log(error);
     return { success: false, error: "Server Error. Failed to get projects" };
-  }
-};
-/**
- * Fetches the total count of projects based on applied filters (searchText, type, visibility).
- * Used for pagination calculation in the admin project table.
- * Requires admin permission to view posts/projects.
- * @param {GetTotalProjectsInputForAdmin} input - Object containing filtering parameters.
- * @returns {Promise<ActionResult<number>>} ActionResult containing the total filtered project count or an error.
- */
-export const getTotalProjects = async (
-  input: GetTotalProjectsInputForAdmin,
-): Promise<ActionResult<number>> => {
-  // #1. Data Validation
-  const validateResult = validateInput(getTotalProjectsSchemaForAdmin, input);
-  if (!validateResult.success) {
-    return validateResult;
-  }
-
-  const { searchText, type, visibility } =
-    validateResult.response as GetTotalProjectsOutputForAdmin;
-  // #2. User Authentication
-  const checkAuth = await getUserFromSession();
-  if (!checkAuth.success) return { success: false, error: checkAuth.error };
-
-  // #3. User Authorization
-  const permission = checkPermission({
-    user: checkAuth.response.user,
-    action: "manage",
-    resource: "post",
-  });
-  if (!permission.success) return permission;
-
-  try {
-    const conditions: SQL[] = [];
-    if (searchText) conditions.push(ilike(projects.title, `%${searchText}%`));
-    if (visibility) conditions.push(eq(projects.visibility, visibility));
-    if (type) conditions.push(eq(projects.type, type));
-
-    const result = await db
-      .select({ count: count() })
-      .from(projects)
-      .where(and(...conditions));
-    return { success: true, response: result[0].count };
-  } catch (error) {
-    console.log(error);
-    return {
-      success: false,
-      error: "Server Error. Failed to get total projects",
-    };
   }
 };

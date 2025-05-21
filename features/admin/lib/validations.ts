@@ -40,16 +40,3 @@ export type GetProjectsInputForAdmin = z.input<
 export type GetProjectsOutputForAdmin = z.infer<
   typeof getProjectsSchemaForAdmin
 >;
-
-export const getTotalProjectsSchemaForAdmin = z.object({
-  searchText: z.string().optional(),
-  visibility: z.nativeEnum(ProjectVisibility).optional(),
-  type: z.nativeEnum(PostTypes).optional(),
-});
-
-export type GetTotalProjectsInputForAdmin = z.input<
-  typeof getTotalProjectsSchemaForAdmin
->;
-export type GetTotalProjectsOutputForAdmin = z.infer<
-  typeof getTotalProjectsSchemaForAdmin
->;

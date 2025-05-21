@@ -48,11 +48,7 @@ import { Badge } from "@/components/ui/badge";
 import ProjectModal from "@/features/project/components/ProjectModal";
 import { ProjectData } from "@/features/project/lib/project.types";
 import { AdminTableProjectsInfo } from "@/features/admin/lib/admin.types";
-import { getProjectDataByPublicId } from "@/features/project/queries/project.queries";
-import {
-  getProjects,
-  getTotalProjects,
-} from "@/features/admin/queries/admin.queries";
+import { getProjects } from "@/features/admin/queries/admin.queries";
 
 const sortableColumnHeaders = Object.entries(ProjectSortByTypesForAdmin);
 const DEBOUNCE_DELAY = 300;
@@ -155,48 +151,36 @@ const ProjectsTable = () => {
     const fetchProjects = async () => {
       try {
         startTransition(async () => {
-          const [getProjectsResult, getTotalProjectsResult] = await Promise.all(
-            [
-              getProjects({
-                sortBy: sortKey,
-                order: order,
-                offset: (currentPage - 1) * entriesPerPage,
-                limit: entriesPerPage,
-                searchText: debouncedSearchText,
-                visibility: visibilityFilter,
-                type: typeFilter,
-              }),
-              getTotalProjects({
-                searchText: debouncedSearchText,
-                visibility: visibilityFilter,
-                type: typeFilter,
-              }),
-            ],
-          );
+          const [getProjectsResult] = await Promise.all([
+            getProjects({
+              sortBy: sortKey,
+              order: order,
+              offset: (currentPage - 1) * entriesPerPage,
+              limit: entriesPerPage,
+              searchText: debouncedSearchText,
+              visibility: visibilityFilter,
+              type: typeFilter,
+            }),
+          ]);
 
           if (signal.aborted) {
             return;
           }
 
           if (getProjectsResult.success) {
-            setProjects(getProjectsResult.response);
-          } else {
-            toast.error(getProjectsResult.error);
-            setProjects([]);
-          }
-
-          if (getTotalProjectsResult.success) {
-            setTotalProjects(getTotalProjectsResult.response);
+            setProjects(getProjectsResult.response.projects);
+            setTotalProjects(getProjectsResult.response.totalCount);
 
             const maxPage = Math.max(
               1,
-              Math.ceil(getTotalProjectsResult.response / entriesPerPage),
+              Math.ceil(getProjectsResult.response.totalCount / entriesPerPage),
             );
             if (currentPage > maxPage) {
               setCurrentPage(maxPage);
             }
           } else {
-            toast.error(getTotalProjectsResult.error);
+            toast.error(getProjectsResult.error);
+            setProjects([]);
             setTotalProjects(0);
           }
         });
