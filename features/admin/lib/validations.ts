@@ -14,8 +14,8 @@ export const getUsersSchemaForAdmin = z.object({
     .default(UserSortByTypes.Username),
   searchText: z.string().optional(),
   role: z.nativeEnum(UserRole).optional(),
-  limit: z.number().int().positive().max(100).optional().default(10),
-  offset: z.number().int().nonnegative().optional().default(0),
+  limit: z.coerce.number().int().positive().max(100).optional().default(10),
+  offset: z.coerce.number().int().nonnegative().optional().default(0),
 });
 
 export type GetUsersInputForAdmin = z.input<typeof getUsersSchemaForAdmin>;
