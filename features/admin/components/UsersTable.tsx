@@ -108,32 +108,38 @@ const UsersTable = () => {
     const fetchUsers = async () => {
       try {
         startTransition(async () => {
-          const getUsersResult = await getUsers({
-            sortBy: sortKey,
-            order: order,
-            offset: (currentPage - 1) * entriesPerPage,
-            limit: entriesPerPage,
-            searchText: debouncedSearchText,
-            role: roleFilter,
-          });
-
+          const params = new URLSearchParams();
+          params.append(
+            "offset",
+            ((currentPage - 1) * entriesPerPage).toString(),
+          );
+          params.append("limit", entriesPerPage.toString());
+          params.append("sortBy", sortKey);
+          params.append("order", order);
+          params.append("searchText", debouncedSearchText);
+          if (roleFilter) params.append("role", roleFilter.toString());
+          const getUsersResult = await fetch(
+            `/api/admin/users?${params.toString()}`,
+          );
+          const data = await getUsersResult.json();
+          if (!getUsersResult.ok) {
+            toast.error(data);
+            setUsers([]);
+            setTotalUsers(0);
+            return;
+          }
           if (signal.aborted) {
             return;
           }
-          if (getUsersResult.success) {
-            setUsers(getUsersResult.response.users);
-            setTotalUsers(getUsersResult.response.totalCount);
-            const maxPage = Math.max(
-              1,
-              Math.ceil(getUsersResult.response.totalCount / entriesPerPage),
-            );
-            if (currentPage > maxPage) {
-              setCurrentPage(maxPage);
-            }
-          } else {
-            toast.error(getUsersResult.error);
-            setUsers([]);
-            setTotalUsers(0);
+
+          setUsers(data.users);
+          setTotalUsers(data.totalCount);
+          const maxPage = Math.max(
+            1,
+            Math.ceil(data.totalCount / entriesPerPage),
+          );
+          if (currentPage > maxPage) {
+            setCurrentPage(maxPage);
           }
         });
       } catch {
