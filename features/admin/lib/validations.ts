@@ -41,18 +41,6 @@ export type GetProjectsOutputForAdmin = z.infer<
   typeof getProjectsSchemaForAdmin
 >;
 
-export const getTotalUsersSchemaForAdmin = z.object({
-  searchText: z.string().optional(),
-  role: z.nativeEnum(UserRole).optional(),
-});
-
-export type GetTotalUsersInputForAdmin = z.input<
-  typeof getTotalUsersSchemaForAdmin
->;
-export type GetTotalUsersOutputForAdmin = z.infer<
-  typeof getTotalUsersSchemaForAdmin
->;
-
 export const getTotalProjectsSchemaForAdmin = z.object({
   searchText: z.string().optional(),
   visibility: z.nativeEnum(ProjectVisibility).optional(),

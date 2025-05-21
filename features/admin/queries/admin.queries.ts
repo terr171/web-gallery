@@ -5,9 +5,6 @@ import {
   GetTotalProjectsInputForAdmin,
   GetTotalProjectsOutputForAdmin,
   getTotalProjectsSchemaForAdmin,
-  GetTotalUsersInputForAdmin,
-  GetTotalUsersOutputForAdmin,
-  getTotalUsersSchemaForAdmin,
   GetUsersInputForAdmin,
   GetUsersOutputForAdmin,
   getUsersSchemaForAdmin,
@@ -197,11 +194,13 @@ export const getTotalNumberOfViews = async (): Promise<
  * Fetches a paginated and filtered list of users for the admin table.
  * Requires admin permission to view users.
  * @param {GetUsersInputForAdmin} input - Object containing filtering, sorting, and pagination parameters.
- * @returns {Promise<ActionResult<AdminTableUserInfo[]>>} ActionResult containing the list of users or an error.
+ * @returns {Promise<ActionResult<{ users: AdminTableUserInfo[]; totalCount: number }>>} ActionResult containing the list of users with count or an error.
  */
 export const getUsers = async (
   input: GetUsersInputForAdmin,
-): Promise<ActionResult<AdminTableUserInfo[]>> => {
+): Promise<
+  ActionResult<{ users: AdminTableUserInfo[]; totalCount: number }>
+> => {
   // #1. Data Validation
   const validateResult = validateInput(getUsersSchemaForAdmin, input);
   if (!validateResult.success) {
@@ -228,73 +227,39 @@ export const getUsers = async (
     const sortColumn = usersSortOption[sortBy];
     const sortFunction = order === OrderByTypes.Ascending ? asc : desc;
 
-    const queryUsers = await db.query.users.findMany({
-      columns: {
-        id: true,
-        username: true,
-        email: true,
-        createdAt: true,
-        avatarUrl: true,
-        role: true,
+    const [queryUsers, queryCount] = await Promise.all([
+      db.query.users.findMany({
+        columns: {
+          id: true,
+          username: true,
+          email: true,
+          createdAt: true,
+          avatarUrl: true,
+          role: true,
+        },
+        limit: limit,
+        offset: offset,
+        where: and(...conditions),
+        orderBy: [sortFunction(sortColumn)],
+      }),
+      db
+        .select({ count: count() })
+        .from(users)
+        .where(and(...conditions)),
+    ]);
+    return {
+      success: true,
+      response: {
+        users: queryUsers as AdminTableUserInfo[],
+        totalCount: queryCount[0].count,
       },
-      limit: limit,
-      offset: offset,
-      where: and(...conditions),
-      orderBy: [sortFunction(sortColumn)],
-    });
-
-    return { success: true, response: queryUsers as AdminTableUserInfo[] };
+    };
   } catch (error) {
     console.log(error);
   }
   return { success: false, error: "Server Error. Failed to get users" };
 };
-/**
- * Fetches the total count of users based on applied filters (searchText, role).
- * Used for pagination calculation in the admin user table.
- * Requires admin permission to view users.
- * @param {GetTotalUsersInputForAdmin} input - Object containing filtering parameters (searchText, role).
- * @returns {Promise<ActionResult<number>>} ActionResult containing the total filtered user count or an error.
- */
-export const getTotalUsers = async (
-  input: GetTotalUsersInputForAdmin,
-): Promise<ActionResult<number>> => {
-  // #1. Data Validation
-  const validateResult = validateInput(getTotalUsersSchemaForAdmin, input);
-  if (!validateResult.success) {
-    return validateResult;
-  }
-  const { searchText, role } =
-    validateResult.response as GetTotalUsersOutputForAdmin;
 
-  // #2. User Authentication
-  const checkAuth = await getUserFromSession();
-  if (!checkAuth.success) return { success: false, error: checkAuth.error };
-
-  // #3. User Authorization
-  const permission = checkPermission({
-    user: checkAuth.response.user,
-    action: "manage",
-    resource: "user",
-  });
-  if (!permission.success) return permission;
-
-  try {
-    const conditions: SQL[] = [];
-    if (searchText) conditions.push(ilike(users.username, `%${searchText}%`));
-    if (role) conditions.push(eq(users.role, role));
-
-    const result = await db
-      .select({ count: count() })
-      .from(users)
-      .where(and(...conditions));
-
-    return { success: true, response: result[0].count };
-  } catch (error) {
-    console.log(error);
-    return { success: false, error: "Server Error. Failed to get total users" };
-  }
-};
 /**
  * Fetches a paginated and filtered list of projects for the admin table.
  * Joins with the users table to include the author's username.

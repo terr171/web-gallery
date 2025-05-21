@@ -33,10 +33,7 @@ import { UserRole } from "@/database/schema";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { AdminTableUserInfo } from "@/features/admin/lib/admin.types";
-import {
-  getTotalUsers,
-  getUsers,
-} from "@/features/admin/queries/admin.queries";
+import { getUsers } from "@/features/admin/queries/admin.queries";
 
 const sortableColumnHeaders = Object.entries(UserSortByTypes);
 const DEBOUNCE_DELAY = 300;
@@ -111,42 +108,31 @@ const UsersTable = () => {
     const fetchUsers = async () => {
       try {
         startTransition(async () => {
-          const [getUsersResult, getTotalUsersResult] = await Promise.all([
-            getUsers({
-              sortBy: sortKey,
-              order: order,
-              offset: (currentPage - 1) * entriesPerPage,
-              limit: entriesPerPage,
-              searchText: debouncedSearchText,
-              role: roleFilter,
-            }),
-            getTotalUsers({
-              searchText: debouncedSearchText,
-              role: roleFilter,
-            }),
-          ]);
+          const getUsersResult = await getUsers({
+            sortBy: sortKey,
+            order: order,
+            offset: (currentPage - 1) * entriesPerPage,
+            limit: entriesPerPage,
+            searchText: debouncedSearchText,
+            role: roleFilter,
+          });
+
           if (signal.aborted) {
             return;
           }
           if (getUsersResult.success) {
-            setUsers(getUsersResult.response);
-          } else {
-            toast.error(getUsersResult.error);
-            setUsers([]);
-          }
-
-          if (getTotalUsersResult.success) {
-            setTotalUsers(getTotalUsersResult.response);
-
+            setUsers(getUsersResult.response.users);
+            setTotalUsers(getUsersResult.response.totalCount);
             const maxPage = Math.max(
               1,
-              Math.ceil(getTotalUsersResult.response / entriesPerPage),
+              Math.ceil(getUsersResult.response.totalCount / entriesPerPage),
             );
             if (currentPage > maxPage) {
               setCurrentPage(maxPage);
             }
           } else {
-            toast.error(getTotalUsersResult.error);
+            toast.error(getUsersResult.error);
+            setUsers([]);
             setTotalUsers(0);
           }
         });
