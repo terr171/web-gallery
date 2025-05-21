@@ -8,8 +8,8 @@ export const usernameSchema = z.object({
 export const getUserDataSchema = usernameSchema;
 
 export const getFollowsSchema = usernameSchema.extend({
-  offset: z.number().int().nonnegative().optional().default(0),
-  limit: z.number().int().positive().max(50).optional().default(10),
+  offset: z.coerce.number().int().nonnegative().optional().default(0),
+  limit: z.coerce.number().int().positive().max(50).optional().default(10),
 });
 
 export const createCommentSchema = publicIdSchema.extend({
