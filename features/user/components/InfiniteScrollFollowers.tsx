@@ -36,15 +36,15 @@ const InfiniteScrollFollowers = ({
   const loadUsers = async () => {
     if (!hasMore || loading || error) return;
     setLoading(true);
-    const queryFollowers = await getFollowers({
-      username: username,
-      offset: offset,
-    });
-    if (!queryFollowers.success) {
-      toast.error(queryFollowers.error);
-      setError(queryFollowers.error);
+    const queryFollowers = await fetch(
+      `/api/users/${username}/followers?offset=${offset}&limit=${NUMBER_OF_NEW_USERS}`,
+    );
+    const queryFollowersResult = await queryFollowers.json();
+    if (!queryFollowers.ok) {
+      toast.error(queryFollowersResult);
+      setError(queryFollowersResult);
     } else {
-      const newFollowers: UserProfile[] = queryFollowers.response;
+      const newFollowers: UserProfile[] = queryFollowersResult;
       if (newFollowers.length === 0) {
         setHasMore(false);
       } else {
@@ -67,15 +67,15 @@ const InfiniteScrollFollowers = ({
 
   useEffect(() => {
     const queryInitialUsers = async () => {
-      const queryFollowers = await getFollowers({
-        username: username,
-        offset: offset,
-      });
-      if (!queryFollowers.success) {
-        toast.error(queryFollowers.error);
-        setError(queryFollowers.error);
+      const queryFollowers = await fetch(
+        `/api/users/${username}/followers?offset=${offset}&limit=${NUMBER_OF_NEW_USERS}`,
+      );
+      const queryFollowersResult = await queryFollowers.json();
+      if (!queryFollowers.ok) {
+        toast.error(queryFollowersResult);
+        setError(queryFollowersResult);
       } else {
-        const newFollowers: UserProfile[] = queryFollowers.response;
+        const newFollowers: UserProfile[] = queryFollowersResult;
         if (newFollowers.length === 0) {
           setHasMore(false);
         } else {
