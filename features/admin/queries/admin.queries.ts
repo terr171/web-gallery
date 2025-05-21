@@ -50,7 +50,7 @@ export const getTotalNumberOfUsers = async (): Promise<
 > => {
   // #1. User Authentication: Ensure a user is logged in.
   const checkAuth = await getUserFromSession();
-  if (!checkAuth.success) return { success: false, error: checkAuth.error };
+  if (!checkAuth.success) return checkAuth;
 
   // #2. User Authorization: Check if the user has permission to view statistics.
   const permission = checkPermission({
@@ -71,7 +71,11 @@ export const getTotalNumberOfUsers = async (): Promise<
   } catch (error) {
     // #5. Error Handling: Log the error and return a generic server error message.
     console.log(error);
-    return { success: false, error: "Server Error. Failed to get total users" };
+    return {
+      success: false,
+      error: "Server Error. Failed to get total users",
+      code: 500,
+    };
   }
 };
 /**
@@ -84,7 +88,7 @@ export const getTotalNumberOfProjects = async (): Promise<
 > => {
   // #1. User Authentication
   const checkAuth = await getUserFromSession();
-  if (!checkAuth.success) return { success: false, error: checkAuth.error };
+  if (!checkAuth.success) return checkAuth;
 
   // #2. User Authorization
   const permission = checkPermission({
@@ -106,6 +110,7 @@ export const getTotalNumberOfProjects = async (): Promise<
     return {
       success: false,
       error: "Server Error. Failed to get total projects",
+      code: 500,
     };
   }
 };
@@ -119,7 +124,7 @@ export const getTotalNumberOfComments = async (): Promise<
 > => {
   // #1. User Authentication
   const checkAuth = await getUserFromSession();
-  if (!checkAuth.success) return { success: false, error: checkAuth.error };
+  if (!checkAuth.success) return checkAuth;
 
   // #2. User Authorization
   const permission = checkPermission({
@@ -141,6 +146,7 @@ export const getTotalNumberOfComments = async (): Promise<
     return {
       success: false,
       error: "Server Error. Failed to get total comments",
+      code: 500,
     };
   }
 };
@@ -154,7 +160,7 @@ export const getTotalNumberOfViews = async (): Promise<
 > => {
   // #1. User Authentication
   const checkAuth = await getUserFromSession();
-  if (!checkAuth.success) return { success: false, error: checkAuth.error };
+  if (!checkAuth.success) return checkAuth;
 
   // #2. User Authorization
   const permission = checkPermission({
@@ -167,10 +173,6 @@ export const getTotalNumberOfViews = async (): Promise<
   try {
     const result = await db
       .select({
-        // Use sum() on the 'views' column.
-        // Use sql`coalesce(..., 0)` to handle the case where the table might be empty
-        // (SUM returns NULL in SQL for empty sets), ensuring we get 0 instead of null.
-        // .mapWith(Number) helps ensure the result is typed as a number.
         totalViews: sql<number>`coalesce(sum(
         ${projects.views}
         ),
@@ -184,6 +186,7 @@ export const getTotalNumberOfViews = async (): Promise<
     return {
       success: false,
       error: "Server Error. Failed to get total views",
+      code: 500,
     };
   }
 };
@@ -207,7 +210,7 @@ export const getUsers = async (
     validateResult.response as GetUsersOutputForAdmin;
   // #2. User Authentication
   const checkAuth = await getUserFromSession();
-  if (!checkAuth.success) return { success: false, error: checkAuth.error };
+  if (!checkAuth.success) return checkAuth;
 
   // #3. User Authorization
   const permission = checkPermission({
@@ -254,7 +257,11 @@ export const getUsers = async (
   } catch (error) {
     console.log(error);
   }
-  return { success: false, error: "Server Error. Failed to get users" };
+  return {
+    success: false,
+    error: "Server Error. Failed to get users",
+    code: 500,
+  };
 };
 
 /**
@@ -280,7 +287,7 @@ export const getProjects = async (
 
   // #2. User Authentication
   const checkAuth = await getUserFromSession();
-  if (!checkAuth.success) return { success: false, error: checkAuth.error };
+  if (!checkAuth.success) return checkAuth;
 
   // #3. User Authorization
   const permission = checkPermission({
@@ -334,6 +341,10 @@ export const getProjects = async (
     };
   } catch (error) {
     console.log(error);
-    return { success: false, error: "Server Error. Failed to get projects" };
+    return {
+      success: false,
+      error: "Server Error. Failed to get projects",
+      code: 500,
+    };
   }
 };
