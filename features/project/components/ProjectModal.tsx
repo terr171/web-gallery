@@ -31,7 +31,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { CommentData, ProjectData } from "@/features/project/lib/project.types";
-import { checkProjectLike } from "@/features/user/queries/interactions.queries";
 
 interface ProjectModalProps {
   project: ProjectData;
@@ -52,11 +51,12 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
 
   useEffect(() => {
     const checkLikeStatus = async () => {
-      const [likedResult] = await Promise.all([
-        checkProjectLike({ publicId: project.publicId }),
+      const [queryLiked] = await Promise.all([
+        fetch(`/api/projects/${project.publicId}/like-status`),
         incrementProjectViews({ publicId: project.publicId }),
       ]);
-      if (likedResult.success) setLiked(likedResult.response);
+      const likedResult = await queryLiked.json();
+      setLiked(likedResult);
     };
 
     checkLikeStatus();
