@@ -151,37 +151,43 @@ const ProjectsTable = () => {
     const fetchProjects = async () => {
       try {
         startTransition(async () => {
-          const [getProjectsResult] = await Promise.all([
-            getProjects({
-              sortBy: sortKey,
-              order: order,
-              offset: (currentPage - 1) * entriesPerPage,
-              limit: entriesPerPage,
-              searchText: debouncedSearchText,
-              visibility: visibilityFilter,
-              type: typeFilter,
-            }),
-          ]);
+          const params = new URLSearchParams();
+          params.append(
+            "offset",
+            ((currentPage - 1) * entriesPerPage).toString(),
+          );
+          params.append("limit", entriesPerPage.toString());
+          params.append("sortBy", sortKey);
+          params.append("order", order);
+          params.append("searchText", debouncedSearchText);
+          if (visibilityFilter)
+            params.append("visibility", visibilityFilter.toString());
+          if (typeFilter) params.append("type", typeFilter.toString());
+
+          const getProjectsResult = await fetch(
+            `/api/admin/projects?${params.toString()}`,
+          );
+          const data = await getProjectsResult.json();
+          if (!getProjectsResult.ok) {
+            toast.error(data);
+            setProjects([]);
+            setTotalProjects(0);
+            return;
+          }
 
           if (signal.aborted) {
             return;
           }
 
-          if (getProjectsResult.success) {
-            setProjects(getProjectsResult.response.projects);
-            setTotalProjects(getProjectsResult.response.totalCount);
+          setProjects(data.projects);
+          setTotalProjects(data.totalCount);
 
-            const maxPage = Math.max(
-              1,
-              Math.ceil(getProjectsResult.response.totalCount / entriesPerPage),
-            );
-            if (currentPage > maxPage) {
-              setCurrentPage(maxPage);
-            }
-          } else {
-            toast.error(getProjectsResult.error);
-            setProjects([]);
-            setTotalProjects(0);
+          const maxPage = Math.max(
+            1,
+            Math.ceil(data.totalCount / entriesPerPage),
+          );
+          if (currentPage > maxPage) {
+            setCurrentPage(maxPage);
           }
         });
       } catch {
