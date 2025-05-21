@@ -31,8 +31,8 @@ export const getProjectsSchemaForAdmin = z.object({
   searchText: z.string().optional(),
   type: z.nativeEnum(PostTypes).optional(),
   visibility: z.nativeEnum(ProjectVisibility).optional(),
-  limit: z.number().int().positive().max(50).optional().default(10),
-  offset: z.number().int().nonnegative().optional().default(0),
+  limit: z.coerce.number().int().positive().max(50).optional().default(10),
+  offset: z.coerce.number().int().nonnegative().optional().default(0),
 });
 export type GetProjectsInputForAdmin = z.input<
   typeof getProjectsSchemaForAdmin
