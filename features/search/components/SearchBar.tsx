@@ -1,45 +1,48 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import SearchBarReset from "@/features/search/components/SearchBarReset";
 import { Button } from "@/components/ui/button";
 import { SearchIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-type SearchBarProps = {
-  query?: string;
-  type?: string;
-  sortBy?: string;
-  orderBy?: string;
-};
-
-const SearchBar = ({
-  query: initialQuery,
-  type,
-  sortBy,
-  orderBy,
-}: SearchBarProps) => {
+const SearchBar = () => {
   const router = useRouter();
+  const currentSearchParams = useSearchParams();
+  const initialQueryFromUrl = currentSearchParams.get("query") || "";
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null); // Ref for the input
+  const [showReset, setShowReset] = React.useState(!!initialQueryFromUrl);
+
+  useEffect(() => {
+    const queryFromUrl = currentSearchParams.get("query") || "";
+    if (inputRef.current && inputRef.current.value !== queryFromUrl) {
+      inputRef.current.value = queryFromUrl;
+    }
+    setShowReset(!!queryFromUrl);
+  }, [currentSearchParams]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const currentQuery = inputRef.current?.value || "";
-    const params = new URLSearchParams();
+    const searchQuery = inputRef.current?.value || "";
+    const params = new URLSearchParams(currentSearchParams.toString());
 
-    if (currentQuery) params.set("query", currentQuery);
-    if (type) params.set("type", type);
-    if (sortBy) params.set("sortBy", sortBy);
-    if (orderBy) params.set("orderBy", orderBy);
+    if (searchQuery) params.set("query", searchQuery);
+    else params.delete("query");
 
     router.push(`/explore?${params.toString()}`, { scroll: false });
   };
 
-  const [showReset, setShowReset] = React.useState(!!initialQuery);
-
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setShowReset(!!event.target.value);
+  };
+
+  const handleResetQuery = () => {
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+    setShowReset(false);
+    router.push("/explore", { scroll: false });
   };
 
   return (
@@ -47,23 +50,14 @@ const SearchBar = ({
       <Input
         ref={inputRef}
         name="query"
-        defaultValue={initialQuery}
+        defaultValue={initialQueryFromUrl}
         className="w-full px-4 py-2 border border-gray-300"
         placeholder="Search Projects"
         onChange={handleInputChange}
       />
-      {type && <input type="hidden" name="type" value={type} />}
-      {sortBy && <input type="hidden" name="sortBy" value={sortBy} />}
-      {orderBy && <input type="hidden" name="orderBy" value={orderBy} />}
 
       <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center">
-        {showReset && (
-          <SearchBarReset
-            formRef={formRef}
-            inputRef={inputRef}
-            onReset={() => setShowReset(false)}
-          />
-        )}
+        {showReset && <SearchBarReset onReset={handleResetQuery} />}
         <Button
           type="submit"
           variant="ghost"

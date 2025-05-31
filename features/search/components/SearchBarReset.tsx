@@ -2,30 +2,12 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
 
-type SearchBarResetProps = {
-  formRef: React.RefObject<HTMLFormElement | null>;
-  inputRef: React.RefObject<HTMLInputElement | null>;
-  onReset?: () => void;
-};
-
-const SearchBarReset = ({
-  formRef,
-  inputRef,
-  onReset,
-}: SearchBarResetProps) => {
-  const router = useRouter();
-
+const SearchBarReset = ({ onReset }: { onReset: () => void }) => {
   const handleReset = () => {
-    if (formRef.current) {
-      formRef.current.reset();
+    if (onReset) {
+      onReset();
     }
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
-    if (onReset) onReset();
-    router.push("/explore", { scroll: false });
   };
 
   return (

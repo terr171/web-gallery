@@ -64,7 +64,7 @@ const Page = async ({
 
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <div className="relative flex-grow min-w-0">
-          <SearchBar query={query} type={type} />
+          <SearchBar />
         </div>
         <div className="w-full flex gap-x-4 sm:w-auto">
           <SelectProjectType />
