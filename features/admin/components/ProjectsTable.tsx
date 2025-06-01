@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, LoaderCircle, RotateCcw, X } from "lucide-react";
+import { ArrowUpDown, Loader2, LoaderCircle, RotateCcw, X } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import {
   OrderByTypes,
@@ -321,13 +321,13 @@ const ProjectsTable = () => {
           <TableHeader>
             <TableRow>
               {sortableColumnHeaders.map(([key, value]) => (
-                <TableHead key={value} className="">
+                <TableHead key={value} className="min-w-[100px]">
                   <Button
                     variant="ghost"
                     onClick={() => {
                       changeSort(value);
-                      setCurrentPage(1);
                     }}
+                    disabled={isPending}
                   >
                     {key}
                     <ArrowUpDown className="text-muted-foreground/70" />
@@ -437,13 +437,28 @@ const ProjectsTable = () => {
                 </TableCell>
               </TableRow>
             ))}
+            {isPending && (
+              <TableRow>
+                <TableCell
+                  colSpan={sortableColumnHeaders.length + 2}
+                  className="h-24 text-center"
+                >
+                  <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
+                </TableCell>
+              </TableRow>
+            )}
+            {!isPending && projects.length === 0 && (
+              <TableRow>
+                <TableCell
+                  colSpan={sortableColumnHeaders.length + 2}
+                  className="h-24 text-center"
+                >
+                  No projects found.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
-        {totalProjects === 0 && (
-          <div className="text-center p-4 text-muted-foreground">
-            No projects found.
-          </div>
-        )}
       </div>
       <DynamicPagination
         totalEntries={totalProjects}
