@@ -48,7 +48,6 @@ import { Badge } from "@/components/ui/badge";
 import ProjectModal from "@/features/project/components/ProjectModal";
 import { ProjectData } from "@/features/project/lib/project.types";
 import { AdminTableProjectsInfo } from "@/features/admin/lib/admin.types";
-import { getProjects } from "@/features/admin/queries/admin.queries";
 
 const sortableColumnHeaders = Object.entries(ProjectSortByTypesForAdmin);
 const DEBOUNCE_DELAY = 300;
@@ -79,12 +78,10 @@ const ProjectsTable = () => {
   );
   const [debouncedSearchText, setDebouncedSearchText] =
     useState(DEFAULT_SEARCH_TEXT);
-  const [isPending, startTransition] = useTransition();
-  const abortControllerRef = useRef<AbortController | null>(null);
-
   const [selectedProjectForModal, setSelectedProjectForModal] =
     useState<ProjectData | null>(null);
   const [loadingProjectId, setLoadingProjectId] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
   const handleDeleteProject = async (publicId: string) => {
     const result = await deleteProject({ publicId: publicId });
@@ -110,21 +107,17 @@ const ProjectsTable = () => {
   };
 
   const handleTypeBadgeClick = (type: PostTypes) => {
-    startTransition(() => {
-      setTypeFilter((currentFilter) =>
-        currentFilter === type ? undefined : type,
-      );
-      setCurrentPage(DEFAULT_CURRENT_PAGE);
-    });
+    setTypeFilter((currentFilter) =>
+      currentFilter === type ? undefined : type,
+    );
+    setCurrentPage(DEFAULT_CURRENT_PAGE);
   };
 
   const handleVisibilityBadgeClick = (visibility: ProjectVisibility) => {
-    startTransition(() => {
-      setVisibilityFilter((currentFilter) =>
-        currentFilter === visibility ? undefined : visibility,
-      );
-      setCurrentPage(DEFAULT_CURRENT_PAGE);
-    });
+    setVisibilityFilter((currentFilter) =>
+      currentFilter === visibility ? undefined : visibility,
+    );
+    setCurrentPage(DEFAULT_CURRENT_PAGE);
   };
 
   useEffect(() => {
@@ -140,89 +133,65 @@ const ProjectsTable = () => {
   }, [searchText, debouncedSearchText]);
 
   useEffect(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-    const signal = controller.signal;
-
     const fetchProjects = async () => {
+      setIsPending(true);
+
       try {
-        startTransition(async () => {
-          const params = new URLSearchParams();
-          params.append(
-            "offset",
-            ((currentPage - 1) * entriesPerPage).toString(),
-          );
-          params.append("limit", entriesPerPage.toString());
-          params.append("sortBy", sortKey);
-          params.append("order", order);
-          params.append("searchText", debouncedSearchText);
-          if (visibilityFilter)
-            params.append("visibility", visibilityFilter.toString());
-          if (typeFilter) params.append("type", typeFilter.toString());
+        const params = new URLSearchParams();
+        params.append(
+          "offset",
+          ((currentPage - 1) * entriesPerPage).toString(),
+        );
+        params.append("limit", entriesPerPage.toString());
+        params.append("sortBy", sortKey);
+        params.append("order", order);
+        params.append("searchText", debouncedSearchText);
+        if (visibilityFilter)
+          params.append("visibility", visibilityFilter.toString());
+        if (typeFilter) params.append("type", typeFilter.toString());
 
-          const getProjectsResult = await fetch(
-            `/api/admin/projects?${params.toString()}`,
-          );
-          const data = await getProjectsResult.json();
-          if (!getProjectsResult.ok) {
-            toast.error(data);
-            setProjects([]);
-            setTotalProjects(0);
-            return;
-          }
+        const getProjectsResult = await fetch(
+          `/api/admin/projects?${params.toString()}`,
+        );
+        const data = await getProjectsResult.json();
+        if (!getProjectsResult.ok) {
+          toast.error(data);
+          setProjects([]);
+          setTotalProjects(0);
+          return;
+        }
 
-          if (signal.aborted) {
-            return;
-          }
+        setProjects(data.projects);
+        setTotalProjects(data.totalCount);
 
-          setProjects(data.projects);
-          setTotalProjects(data.totalCount);
-
-          const maxPage = Math.max(
-            1,
-            Math.ceil(data.totalCount / entriesPerPage),
-          );
-          if (currentPage > maxPage) {
-            setCurrentPage(maxPage);
-          }
-        });
+        const maxPage = Math.max(
+          1,
+          Math.ceil(data.totalCount / entriesPerPage),
+        );
+        if (currentPage > maxPage) {
+          setCurrentPage(maxPage);
+        }
       } catch {
         toast.error("An unexpected error occurred while fetching data.");
         setProjects([]);
         setTotalProjects(0);
-      } finally {
-        if (abortControllerRef.current === controller) {
-          abortControllerRef.current = null;
-        }
       }
+      setIsPending(false);
     };
 
     fetchProjects();
-    return () => {
-      controller.abort();
-      if (abortControllerRef.current === controller) {
-        abortControllerRef.current = null;
-      }
-    };
   }, [
     sortKey,
     order,
     currentPage,
     entriesPerPage,
     debouncedSearchText,
-    startTransition,
     visibilityFilter,
     typeFilter,
   ]);
   const handleEntriesChange = (newEntries: number) => {
-    startTransition(() => {
-      setEntriesPerPage(newEntries);
-      setCurrentPage(DEFAULT_CURRENT_PAGE);
-    });
+    setEntriesPerPage(newEntries);
+    setCurrentPage(DEFAULT_CURRENT_PAGE);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -230,16 +199,14 @@ const ProjectsTable = () => {
   };
 
   const handleReset = () => {
-    startTransition(() => {
-      setSearchText(DEFAULT_SEARCH_TEXT);
-      setDebouncedSearchText(DEFAULT_SEARCH_TEXT);
-      setSortKey(DEFAULT_SORT_KEY);
-      setOrder(DEFAULT_ORDER);
-      setEntriesPerPage(DEFAULT_ENTRIES_PER_PAGE);
-      setCurrentPage(DEFAULT_CURRENT_PAGE);
-      setVisibilityFilter(undefined);
-      setTypeFilter(undefined);
-    });
+    setSearchText(DEFAULT_SEARCH_TEXT);
+    setDebouncedSearchText(DEFAULT_SEARCH_TEXT);
+    setSortKey(DEFAULT_SORT_KEY);
+    setOrder(DEFAULT_ORDER);
+    setEntriesPerPage(DEFAULT_ENTRIES_PER_PAGE);
+    setCurrentPage(DEFAULT_CURRENT_PAGE);
+    setVisibilityFilter(undefined);
+    setTypeFilter(undefined);
   };
 
   const handleProjectView = async (publicId: string) => {

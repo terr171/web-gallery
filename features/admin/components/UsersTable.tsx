@@ -33,7 +33,6 @@ import { UserRole } from "@/database/schema";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { AdminTableUserInfo } from "@/features/admin/lib/admin.types";
-import { getUsers } from "@/features/admin/queries/admin.queries";
 
 const sortableColumnHeaders = Object.entries(UserSortByTypes);
 const DEBOUNCE_DELAY = 300;
@@ -52,13 +51,12 @@ const UsersTable = () => {
   const [currentPage, setCurrentPage] = useState(DEFAULT_CURRENT_PAGE);
   const [users, setUsers] = useState<AdminTableUserInfo[]>([]);
   const [totalUsers, setTotalUsers] = useState(0);
+  const [isPending, setIsPending] = useState(false);
   const [entriesPerPage, setEntriesPerPage] = useState(
     DEFAULT_ENTRIES_PER_PAGE,
   );
   const [debouncedSearchText, setDebouncedSearchText] =
     useState(DEFAULT_SEARCH_TEXT);
-  const [isPending, startTransition] = useTransition();
-  const abortControllerRef = useRef<AbortController | null>(null);
 
   const changeSort = (key: UserSortByTypes) => {
     if (sortKey === key) {
@@ -75,12 +73,10 @@ const UsersTable = () => {
   };
 
   const handleRoleBadgeClick = (role: UserRole) => {
-    startTransition(() => {
-      setRoleFilter((currentFilter) =>
-        currentFilter === role ? undefined : role,
-      );
-      setCurrentPage(DEFAULT_CURRENT_PAGE);
-    });
+    setRoleFilter((currentFilter) =>
+      currentFilter === role ? undefined : role,
+    );
+    setCurrentPage(DEFAULT_CURRENT_PAGE);
   };
 
   useEffect(() => {
@@ -97,85 +93,62 @@ const UsersTable = () => {
   }, [searchText]);
 
   useEffect(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-    const signal = controller.signal;
-
     const fetchUsers = async () => {
+      setIsPending(true);
       try {
-        startTransition(async () => {
-          const params = new URLSearchParams();
-          params.append(
-            "offset",
-            ((currentPage - 1) * entriesPerPage).toString(),
-          );
-          params.append("limit", entriesPerPage.toString());
-          params.append("sortBy", sortKey);
-          params.append("order", order);
-          params.append("searchText", debouncedSearchText);
-          if (roleFilter) params.append("role", roleFilter.toString());
-          const getUsersResult = await fetch(
-            `/api/admin/users?${params.toString()}`,
-          );
-          const data = await getUsersResult.json();
-          if (!getUsersResult.ok) {
-            toast.error(data);
-            setUsers([]);
-            setTotalUsers(0);
-            return;
-          }
-          if (signal.aborted) {
-            return;
-          }
+        const params = new URLSearchParams();
+        params.append(
+          "offset",
+          ((currentPage - 1) * entriesPerPage).toString(),
+        );
+        params.append("limit", entriesPerPage.toString());
+        params.append("sortBy", sortKey);
+        params.append("order", order);
+        params.append("searchText", debouncedSearchText);
+        if (roleFilter) params.append("role", roleFilter.toString());
+        const getUsersResult = await fetch(
+          `/api/admin/users?${params.toString()}`,
+        );
+        const data = await getUsersResult.json();
+        if (!getUsersResult.ok) {
+          toast.error(data);
+          setUsers([]);
+          setTotalUsers(0);
+          return;
+        }
 
-          setUsers(data.users);
-          setTotalUsers(data.totalCount);
-          const maxPage = Math.max(
-            1,
-            Math.ceil(data.totalCount / entriesPerPage),
-          );
-          if (currentPage > maxPage) {
-            setCurrentPage(maxPage);
-          }
-        });
+        setUsers(data.users);
+        setTotalUsers(data.totalCount);
+        const maxPage = Math.max(
+          1,
+          Math.ceil(data.totalCount / entriesPerPage),
+        );
+        if (currentPage > maxPage) {
+          setCurrentPage(maxPage);
+        }
       } catch {
         toast.error("An unexpected error occurred while fetching data.");
         setUsers([]);
         setTotalUsers(0);
-      } finally {
-        if (abortControllerRef.current === controller) {
-          abortControllerRef.current = null;
-        }
       }
+      setIsPending(false);
     };
 
     fetchUsers();
 
-    return () => {
-      controller.abort();
-      if (abortControllerRef.current === controller) {
-        abortControllerRef.current = null;
-      }
-    };
+    return () => {};
   }, [
     sortKey,
     order,
     currentPage,
     entriesPerPage,
     debouncedSearchText,
-    startTransition,
     roleFilter,
   ]);
 
   const handleEntriesChange = (newEntries: number) => {
-    startTransition(() => {
-      setEntriesPerPage(newEntries);
-      setCurrentPage(DEFAULT_CURRENT_PAGE);
-    });
+    setEntriesPerPage(newEntries);
+    setCurrentPage(DEFAULT_CURRENT_PAGE);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -183,15 +156,13 @@ const UsersTable = () => {
   };
 
   const handleReset = () => {
-    startTransition(() => {
-      setSearchText(DEFAULT_SEARCH_TEXT);
-      setDebouncedSearchText(DEFAULT_SEARCH_TEXT);
-      setSortKey(DEFAULT_SORT_KEY);
-      setOrder(DEFAULT_ORDER);
-      setEntriesPerPage(DEFAULT_ENTRIES_PER_PAGE);
-      setCurrentPage(DEFAULT_CURRENT_PAGE);
-      setRoleFilter(undefined);
-    });
+    setSearchText(DEFAULT_SEARCH_TEXT);
+    setDebouncedSearchText(DEFAULT_SEARCH_TEXT);
+    setSortKey(DEFAULT_SORT_KEY);
+    setOrder(DEFAULT_ORDER);
+    setEntriesPerPage(DEFAULT_ENTRIES_PER_PAGE);
+    setCurrentPage(DEFAULT_CURRENT_PAGE);
+    setRoleFilter(undefined);
   };
 
   return (
