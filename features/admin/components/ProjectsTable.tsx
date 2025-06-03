@@ -213,13 +213,14 @@ const ProjectsTable = () => {
     setLoadingProjectId(publicId);
     setSelectedProjectForModal(null);
     try {
-      const url = `/api/project/${publicId}?includeFiles=true&includeComments=true`;
+      const url = `/api/projects/${publicId}?includeFiles=true&includeComments=true`;
       const response = await fetch(url);
       if (!response.ok) {
         toast.error("Unknown Error Occurred");
         setSelectedProjectForModal(null);
       } else {
         const projectData: ProjectData = await response.json();
+
         setSelectedProjectForModal(projectData);
       }
     } catch (error) {
