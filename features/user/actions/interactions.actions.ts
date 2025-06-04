@@ -298,8 +298,7 @@ export async function unlikeProject(
           ),
         )
         .limit(1);
-
-      if (existingLike.length > 0) {
+      if (existingLike.length == 0) {
         throw new Error("You haven't liked this project");
       }
 
