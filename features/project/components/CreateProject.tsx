@@ -80,7 +80,6 @@ const CreateProject = ({ isOwner = false, project }: Props) => {
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
-      console.log("DD");
       setSrcDoc(`
         <!DOCTYPE html>
         <html >
