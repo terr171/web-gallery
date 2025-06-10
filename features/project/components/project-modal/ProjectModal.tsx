@@ -20,8 +20,6 @@ import {
   createComment,
   deleteComment,
   incrementProjectViews,
-  likeProject,
-  unlikeProject,
 } from "@/features/user/actions/interactions.actions";
 import { toast } from "sonner";
 import { FileTypes } from "@/database/schema";
@@ -31,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { CommentData, ProjectData } from "@/features/project/lib/project.types";
+import { useProjectLike } from "../../hooks/useProjectLike";
 
 interface ProjectModalProps {
   project: ProjectData;
@@ -39,28 +38,22 @@ interface ProjectModalProps {
 
 const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
   const [open, setOpen] = useState(true);
-  const [liked, setLiked] = useState(false);
-  const [likedCount, setLikedCount] = useState(project.likesCount);
   const [isPending, setIsPending] = useState(false);
   const [projectComments, setProjectComments] = useState<CommentData[]>(
     project.comments || [],
   );
+  const { liked, likedCount, handleToggleLike, isLoadingLike, isTogglingLike } =
+    useProjectLike({
+      publicId: project.publicId,
+      initialLikesCount: project.likesCount,
+    });
+
   const [newComment, setNewComment] = useState("");
 
   const router = useRouter();
 
   useEffect(() => {
-    const checkLikeStatus = async () => {
-      const [queryLiked] = await Promise.all([
-        fetch(`/api/projects/${project.publicId}/like-status`),
-        incrementProjectViews({ publicId: project.publicId }),
-      ]);
-      const likedResult = await queryLiked.json();
-      setLiked(likedResult);
-    };
-
-    checkLikeStatus();
-    return () => {};
+    incrementProjectViews({ publicId: project.publicId });
   }, []);
 
   const getFileContent = (type: FileTypes) => {
@@ -83,23 +76,6 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
         </body>
       </html>
     `;
-  };
-  const handleToggleLike = async () => {
-    if (!liked) {
-      const query = await likeProject({ publicId: project.publicId });
-      if (!query.success) toast(query.error);
-      else {
-        setLiked(true);
-        setLikedCount((prev) => prev + 1);
-      }
-    } else {
-      const query = await unlikeProject({ publicId: project.publicId });
-      if (!query.success) toast(query.error);
-      else {
-        setLiked(false);
-        setLikedCount((prev) => prev - 1);
-      }
-    }
   };
 
   const handleOpenChange = (openState: boolean) => {
@@ -200,6 +176,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                   size="sm"
                   onClick={handleToggleLike}
                   className="flex items-center gap-1"
+                  disabled={isLoadingLike || isTogglingLike}
                 >
                   <Heart size={16} className={liked ? "fill-white" : ""} />
                   <span>{likedCount}</span>
