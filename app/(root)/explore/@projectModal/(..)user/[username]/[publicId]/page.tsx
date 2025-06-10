@@ -1,4 +1,4 @@
-import ProjectModal from "@/features/project/components/ProjectModal";
+import ProjectModal from "@/features/project/components/project-modal/ProjectModal";
 import ErrorMessage from "@/components/shared/ErrorMessage";
 import { ProjectData } from "@/features/project/lib/project.types";
 import { getProjectDataByPublicId } from "@/features/project/queries/project.queries";

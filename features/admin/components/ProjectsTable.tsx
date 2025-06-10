@@ -45,7 +45,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
-import ProjectModal from "@/features/project/components/ProjectModal";
+import ProjectModal from "@/features/project/components/project-modal/ProjectModal";
 import { ProjectData } from "@/features/project/lib/project.types";
 import { AdminTableProjectsInfo } from "@/features/admin/lib/admin.types";
 
