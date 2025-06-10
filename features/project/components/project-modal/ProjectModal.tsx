@@ -1,19 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Calendar, Eye, Heart, MessageSquare, Trash2, X } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { X } from "lucide-react";
 import { deleteProject } from "@/features/project/actions/project.actions";
 import { Button } from "@/components/ui/button";
 import { incrementProjectViews } from "@/features/user/actions/interactions.actions";
@@ -23,10 +12,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import Link from "next/link";
 import { ProjectData } from "@/features/project/lib/project.types";
 import { useProjectLike } from "../../hooks/useProjectLike";
 import { useProjectComments } from "@/features/project/hooks/useProjectComments";
+import Header from "@/features/project/components/project-modal/Header";
 
 interface ProjectModalProps {
   project: ProjectData;
@@ -35,7 +24,7 @@ interface ProjectModalProps {
 
 const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
   const [open, setOpen] = useState(true);
-  const [isPending, setIsPending] = useState<boolean>(false);
+  const [isDeletePending, setIsDeletePending] = useState<boolean>(false);
   const router = useRouter();
 
   const { liked, likedCount, handleToggleLike, isLoadingLike, isTogglingLike } =
@@ -95,7 +84,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
   };
 
   const handleDeleteProject = async () => {
-    setIsPending(true);
+    setIsDeletePending(true);
     const result = await deleteProject({ publicId: project.publicId });
     if (!result.success) {
       toast.error(result.error);
@@ -104,7 +93,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
       setOpen(false);
       router.back();
     }
-    setIsPending(false);
+    setIsDeletePending(false);
   };
 
   return (
@@ -112,85 +101,17 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
       <DialogContent className="max-w-5xl w-[90vw] max-h-[90vh] overflow-y-auto">
         <div className="flex flex-col space-y-4">
           {/* Project header with user info and stats */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 pb-3 border-b">
-            <div className="flex items-center gap-3">
-              <Avatar>
-                <AvatarImage
-                  src={getAvatarUrl(project.user.avatarUrl)}
-                  alt={project.user.username}
-                />
-                <AvatarFallback>
-                  {project.user.username.substring(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <DialogTitle className="text-xl">{project.title}</DialogTitle>
-                <div className="text-sm text-gray-500">
-                  <Link href={`/user/${project.user.username}`}>
-                    by {project.user.username}
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2 items-center justify-end ">
-              <div className="flex items-center gap-1 text-sm text-gray-500">
-                <Calendar size={16} />
-                <span>{project.createdAt.toLocaleString().split(",")[0]}</span>
-              </div>
-              <div className="flex items-center gap-1 text-sm text-gray-500">
-                <Eye size={16} />
-                <span>{project.views.toLocaleString()}</span>
-              </div>
-              <div className="flex items-center gap-1 text-sm text-gray-500">
-                <MessageSquare size={16} />
-                <span>{comments.length}</span>
-              </div>
-
-              <div className="flex gap-2">
-                <Button
-                  variant={liked ? "default" : "outline"}
-                  size="sm"
-                  onClick={handleToggleLike}
-                  className="flex items-center gap-1"
-                  disabled={isLoadingLike || isTogglingLike}
-                >
-                  <Heart size={16} className={liked ? "fill-white" : ""} />
-                  <span>{likedCount}</span>
-                </Button>
-
-                {project.isOwner && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        disabled={isPending}
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="z-200">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Project</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this project? This
-                          action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteProject}>
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
-              </div>
-            </div>
-          </div>
-
+          <Header
+            project={project}
+            liked={liked}
+            likedCount={likedCount}
+            commentsCount={comments.length}
+            isDeletePending={isDeletePending}
+            isLoadingLike={isLoadingLike}
+            isTogglingLike={isTogglingLike}
+            onToggleLike={handleToggleLike}
+            onDeleteProject={handleDeleteProject}
+          />
           {/* Code and preview section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="flex flex-col">
