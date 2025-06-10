@@ -16,11 +16,7 @@ import {
 import { Calendar, Eye, Heart, MessageSquare, Trash2, X } from "lucide-react";
 import { deleteProject } from "@/features/project/actions/project.actions";
 import { Button } from "@/components/ui/button";
-import {
-  createComment,
-  deleteComment,
-  incrementProjectViews,
-} from "@/features/user/actions/interactions.actions";
+import { incrementProjectViews } from "@/features/user/actions/interactions.actions";
 import { toast } from "sonner";
 import { FileTypes } from "@/database/schema";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -28,8 +24,9 @@ import { getAvatarUrl } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
-import { CommentData, ProjectData } from "@/features/project/lib/project.types";
+import { ProjectData } from "@/features/project/lib/project.types";
 import { useProjectLike } from "../../hooks/useProjectLike";
+import { useProjectComments } from "@/features/project/hooks/useProjectComments";
 
 interface ProjectModalProps {
   project: ProjectData;
@@ -38,19 +35,27 @@ interface ProjectModalProps {
 
 const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
   const [open, setOpen] = useState(true);
-  const [isPending, setIsPending] = useState(false);
-  const [projectComments, setProjectComments] = useState<CommentData[]>(
-    project.comments || [],
-  );
+  const [isPending, setIsPending] = useState<boolean>(false);
+  const router = useRouter();
+
   const { liked, likedCount, handleToggleLike, isLoadingLike, isTogglingLike } =
     useProjectLike({
       publicId: project.publicId,
       initialLikesCount: project.likesCount,
     });
 
-  const [newComment, setNewComment] = useState("");
-
-  const router = useRouter();
+  const {
+    comments,
+    newComment,
+    setNewComment,
+    isSubmitPending: isCommentSubmitPending,
+    isDeletePending: IsCommentDeletePending,
+    handleSubmitComment,
+    handleDeleteComment,
+  } = useProjectComments({
+    publicId: project.publicId,
+    initialComments: project.comments || [],
+  });
 
   useEffect(() => {
     incrementProjectViews({ publicId: project.publicId });
@@ -89,37 +94,8 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
     }
   };
 
-  const handleSubmitComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!newComment.trim()) return;
-    const query = await createComment({
-      publicId: project.publicId,
-      newComment,
-    });
-
-    if (query.success) {
-      setProjectComments((prev) => [...prev, query.response]);
-      setNewComment("");
-    } else {
-      toast.error(query.error);
-    }
-  };
-
-  const handleDeleteComment = async (commentId: string) => {
-    const query = await deleteComment({ commentId: commentId });
-    setIsPending(true);
-    if (query.success) {
-      setProjectComments((prev) =>
-        prev.filter((comment) => comment.id !== commentId),
-      );
-    } else {
-      toast.error(query.error);
-    }
-    setIsPending(false);
-  };
-
   const handleDeleteProject = async () => {
+    setIsPending(true);
     const result = await deleteProject({ publicId: project.publicId });
     if (!result.success) {
       toast.error(result.error);
@@ -128,6 +104,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
       setOpen(false);
       router.back();
     }
+    setIsPending(false);
   };
 
   return (
@@ -167,7 +144,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
               </div>
               <div className="flex items-center gap-1 text-sm text-gray-500">
                 <MessageSquare size={16} />
-                <span>{projectComments.length}</span>
+                <span>{comments.length}</span>
               </div>
 
               <div className="flex gap-2">
@@ -265,7 +242,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
           {/* Comments section */}
           <div className="mt-6">
             <h3 className="text-lg font-medium mb-4">
-              Comments ({projectComments.length})
+              Comments ({comments.length})
             </h3>
 
             {/* Add comment form */}
@@ -276,14 +253,18 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                 onChange={(e) => setNewComment(e.target.value)}
                 className="min-h-[60px]"
               />
-              <Button onClick={handleSubmitComment} className="sm:self-end">
+              <Button
+                onClick={handleSubmitComment}
+                className="sm:self-end"
+                disabled={isCommentSubmitPending}
+              >
                 Post
               </Button>
             </div>
 
             {/* Comments list */}
             <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
-              {projectComments.map((comment) => (
+              {comments.map((comment) => (
                 <div
                   key={comment.id}
                   className="flex gap-3 p-3 border rounded-md"
@@ -309,6 +290,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                             onClick={() => handleDeleteComment(comment.id)}
                             variant="ghost"
                             size="sm"
+                            disabled={IsCommentDeletePending}
                           >
                             <X />
                           </Button>
