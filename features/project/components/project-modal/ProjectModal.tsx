@@ -1,7 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { deleteProject } from "@/features/project/actions/project.actions";
 import { incrementProjectViews } from "@/features/user/actions/interactions.actions";
 import { toast } from "sonner";
@@ -73,6 +77,10 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-5xl w-[90vw] max-h-[90vh] overflow-y-auto">
+        <DialogDescription className="sr-only">
+          A detailed view of the project, showing its code, a live preview, and
+          a section for user comments.
+        </DialogDescription>
         <div className="flex flex-col space-y-4">
           {/* Project header with user info and stats */}
           <Header
