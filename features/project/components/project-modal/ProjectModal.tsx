@@ -7,15 +7,15 @@ import { deleteProject } from "@/features/project/actions/project.actions";
 import { Button } from "@/components/ui/button";
 import { incrementProjectViews } from "@/features/user/actions/interactions.actions";
 import { toast } from "sonner";
-import { FileTypes } from "@/database/schema";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/utils";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ProjectData } from "@/features/project/lib/project.types";
 import { useProjectLike } from "../../hooks/useProjectLike";
 import { useProjectComments } from "@/features/project/hooks/useProjectComments";
 import Header from "@/features/project/components/project-modal/Header";
+import CodeViewer from "@/features/project/components/project-modal/CodeViewer";
+import Preview from "./Preview";
 
 interface ProjectModalProps {
   project: ProjectData;
@@ -49,28 +49,6 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
   useEffect(() => {
     incrementProjectViews({ publicId: project.publicId });
   }, []);
-
-  const getFileContent = (type: FileTypes) => {
-    return project.files.find((file) => file.type === type)?.content || "";
-  };
-  const getIframeContent = () => {
-    const htmlContent = getFileContent(FileTypes.HTML);
-    const cssContent = getFileContent(FileTypes.CSS);
-    const jsContent = getFileContent(FileTypes.JS);
-
-    return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <style>${cssContent}</style>
-        </head>
-        <body>
-          ${htmlContent}
-          <script>${jsContent}</script>
-        </body>
-      </html>
-    `;
-  };
 
   const handleOpenChange = (openState: boolean) => {
     setOpen(openState);
@@ -114,50 +92,8 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
           />
           {/* Code and preview section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="flex flex-col">
-              <Tabs defaultValue="html" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-2">
-                  <TabsTrigger value="html">HTML</TabsTrigger>
-                  <TabsTrigger value="css">CSS</TabsTrigger>
-                  <TabsTrigger value="js">JavaScript</TabsTrigger>
-                </TabsList>
-                <TabsContent
-                  value="html"
-                  className="border rounded-md min-h-[300px] max-h-[300px] overflow-auto"
-                >
-                  <pre className="p-4 rounded-md bg-gray-900 text-gray-100 overflow-auto h-full text-sm ">
-                    <code>{getFileContent(FileTypes.HTML)}</code>
-                  </pre>
-                </TabsContent>
-                <TabsContent
-                  value="css"
-                  className="border rounded-md min-h-[300px] max-h-[300px] overflow-auto"
-                >
-                  <pre className="p-4 rounded-md bg-gray-900 text-gray-100 overflow-auto h-full text-sm">
-                    <code>{getFileContent(FileTypes.CSS)}</code>
-                  </pre>
-                </TabsContent>
-                <TabsContent
-                  value="js"
-                  className="border rounded-md min-h-[300px] max-h-[300px] overflow-auto"
-                >
-                  <pre className="p-4 rounded-md bg-gray-900 text-gray-100 overflow-auto h-full text-sm">
-                    <code>{getFileContent(FileTypes.JS)}</code>
-                  </pre>
-                </TabsContent>
-              </Tabs>
-            </div>
-            <div className="border rounded-md p-1 max-h-[320px] h-full overflow-hidden">
-              <div className="text-xs text-gray-500 border-b pb-1 px-2">
-                Preview
-              </div>
-              <iframe
-                srcDoc={getIframeContent()}
-                title="Code Preview"
-                className="w-full h-full "
-                sandbox="allow-scripts"
-              />
-            </div>
+            <CodeViewer files={project.files} />
+            <Preview files={project.files} />
           </div>
 
           {/* Comments section */}
