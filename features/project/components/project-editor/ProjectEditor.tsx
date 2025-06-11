@@ -1,13 +1,9 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Button } from "../../../../components/ui/button";
 import { Loader2, Play, Save, Trash2 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
-import {
-  deleteProject,
-  updateProjectFiles,
-} from "@/features/project/actions/project.actions";
 import {
   Select,
   SelectContent,
@@ -15,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { PostTypes, ProjectVisibility } from "@/database/schema";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,7 +20,6 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
@@ -39,9 +33,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useRouter } from "next/navigation";
 import { ProjectData } from "@/features/project/lib/project.types";
 import { useProjectState } from "@/features/project/components/project-editor/useProjectState";
+import { useProjectActions } from "@/features/project/components/project-editor/useProjectActions";
 
 interface Props {
   isOwner?: boolean;
@@ -49,12 +43,7 @@ interface Props {
 }
 
 const ProjectEditor = ({ isOwner = false, project }: Props) => {
-  const { publicId } = project;
-
-  const [isSaving, setIsSaving] = useState(false);
   const iframeRef = useRef(null);
-
-  const router = useRouter();
 
   const {
     projectTitle,
@@ -73,48 +62,26 @@ const ProjectEditor = ({ isOwner = false, project }: Props) => {
     setVisibility,
   } = useProjectState(project);
 
-  const runCode = () => {
-    if (iframeRef.current) {
-      const currentContent = srcDoc;
-      setSrcDoc("");
-      setTimeout(() => {
-        setSrcDoc(currentContent);
-      }, 50);
-    }
-  };
-  const handleSave = async () => {
-    setIsSaving(true);
-    const result = await updateProjectFiles({
-      publicId,
-      newTitle: projectTitle,
-      newType: projectType,
-      html: projectHtml,
-      css: projectCss,
-      javascript: projectJavascript,
-      visibility: visibility,
-    });
-    if (result.success) {
-      toast.success("Changes have been saved");
-    } else {
-      toast.error(result.error);
-    }
-    setIsSaving(false);
-  };
+  const {
+    isSaving,
+    handleSave,
+    handleDeleteProject,
+    runCode,
+    handleVisibilityChange,
+  } = useProjectActions({
+    project,
+    projectTitle,
+    projectType,
+    projectHtml,
+    projectCss,
+    projectJavascript,
+    visibility,
+    srcDoc,
+    setSrcDoc,
+  });
 
-  const handleVisibilityChange = (isChecked: boolean) => {
-    setVisibility(
-      isChecked ? ProjectVisibility.Public : ProjectVisibility.Private,
-    );
-  };
-
-  const handleDeleteProject = async () => {
-    const result = await deleteProject({ publicId: project.publicId });
-    if (!result.success) {
-      toast.error(result.error);
-    } else {
-      toast.success("Project deleted successfully");
-      router.push(`/user/${project.user.username}`);
-    }
+  const onVisibilityChange = (isChecked: boolean) => {
+    setVisibility(handleVisibilityChange(isChecked));
   };
 
   return (
@@ -155,7 +122,7 @@ const ProjectEditor = ({ isOwner = false, project }: Props) => {
                 <Switch
                   id="visibility-switch"
                   checked={visibility === ProjectVisibility.Public}
-                  onCheckedChange={handleVisibilityChange}
+                  onCheckedChange={onVisibilityChange}
                 />
               </div>
               <Button onClick={handleSave} disabled={isSaving}>
