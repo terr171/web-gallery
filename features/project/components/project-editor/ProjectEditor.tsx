@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Button } from "../../../../components/ui/button";
 import { Loader2, Play, Save, Trash2 } from "lucide-react";
 
@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { FileTypes, PostTypes, ProjectVisibility } from "@/database/schema";
+import { PostTypes, ProjectVisibility } from "@/database/schema";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
 import { ProjectData } from "@/features/project/lib/project.types";
+import { useProjectState } from "@/features/project/components/project-editor/useProjectState";
 
 interface Props {
   isOwner?: boolean;
@@ -48,56 +49,29 @@ interface Props {
 }
 
 const ProjectEditor = ({ isOwner = false, project }: Props) => {
-  const { publicId, title, type } = project;
+  const { publicId } = project;
 
-  const [projectTitle, setProjectTitle] = useState("");
-  const [projectType, setProjectType] = useState<PostTypes>(type);
-  const [projectHtml, setProjectHtml] = useState("");
-  const [projectCss, setProjectCss] = useState("");
-  const [projectJavascript, setProjectJavascript] = useState("");
-  const [srcDoc, setSrcDoc] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const iframeRef = useRef(null);
-  const [visibility, setVisibility] = useState<ProjectVisibility>(
-    project.visibility,
-  );
+
   const router = useRouter();
 
-  useEffect(() => {
-    const defaultHtml =
-      project.files.find((file) => file.type === FileTypes.HTML)?.content || "";
-    const defaultCss =
-      project.files.find((file) => file.type === FileTypes.CSS)?.content || "";
-    const defaultJs =
-      project.files.find((file) => file.type === FileTypes.JS)?.content || "";
-    setVisibility(project.visibility);
-    setProjectTitle(title);
-    setProjectType(type);
-    setProjectHtml(defaultHtml);
-    setProjectCss(defaultCss);
-    setProjectJavascript(defaultJs);
-  }, []);
-
-  useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      setSrcDoc(`
-        <!DOCTYPE html>
-        <html >
-        <head>
-          <style>${projectCss}</style>
-        </head>
-        <body>
-           ${projectHtml}
-          <script>${projectJavascript}</script>
-        </body>
-      </html>
-      `);
-    }, 300);
-
-    return () => {
-      clearTimeout(debounceTimer);
-    };
-  }, [projectHtml, projectCss, projectJavascript]);
+  const {
+    projectTitle,
+    setProjectTitle,
+    projectType,
+    setProjectType,
+    projectHtml,
+    setProjectHtml,
+    projectCss,
+    setProjectCss,
+    projectJavascript,
+    setProjectJavascript,
+    srcDoc,
+    setSrcDoc,
+    visibility,
+    setVisibility,
+  } = useProjectState(project);
 
   const runCode = () => {
     if (iframeRef.current) {
