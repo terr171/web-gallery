@@ -45,9 +45,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
-import ProjectModal from "@/features/project/components/project-modal/ProjectModal";
+import ProjectModalBody from "@/features/project/components/project-modal/ProjectModalBody";
 import { ProjectData } from "@/features/project/lib/project.types";
 import { AdminTableProjectsInfo } from "@/features/admin/lib/admin.types";
+import ProjectModalContainer from "@/features/project/components/project-modal/ProjectModalContainer";
 
 const sortableColumnHeaders = Object.entries(ProjectSortByTypesForAdmin);
 const DEBOUNCE_DELAY = 300;
@@ -469,10 +470,9 @@ const ProjectsTable = () => {
         disabled={isPending}
       />
       {selectedProjectForModal && (
-        <ProjectModal
-          project={selectedProjectForModal}
-          onClose={handleCloseModal}
-        />
+        <ProjectModalContainer onClose={handleCloseModal}>
+          <ProjectModalBody project={selectedProjectForModal} />
+        </ProjectModalContainer>
       )}
     </>
   );
