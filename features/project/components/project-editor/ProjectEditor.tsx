@@ -1,18 +1,7 @@
 "use client";
 import React, { useRef } from "react";
-import { Button } from "../../../../components/ui/button";
-import { Loader2, Play, Save, Trash2 } from "lucide-react";
-
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { PostTypes, ProjectVisibility } from "@/database/schema";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Play } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ResizableHandle,
@@ -20,22 +9,11 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
 import { ProjectData } from "@/features/project/lib/project.types";
 import { useProjectState } from "@/features/project/components/project-editor/useProjectState";
 import { useProjectActions } from "@/features/project/components/project-editor/useProjectActions";
+import Header from "@/features/project/components/project-editor/Header";
 
 interface Props {
   isOwner?: boolean;
@@ -87,90 +65,20 @@ const ProjectEditor = ({ isOwner = false, project }: Props) => {
   return (
     <>
       <div className="flex flex-col px-8 pt-8 space-y-4 h-full">
-        {isOwner ? (
-          <>
-            <div className="flex flex-row gap-4 items-center justify-between shrink-0 w-full">
-              <div className="flex gap-4 items-center flex-1 min-w-0">
-                <Input
-                  value={projectTitle}
-                  onChange={(e) => setProjectTitle(e.target.value)}
-                  maxLength={100}
-                  className="text-xl focus-visible:ring-0 shadow-none field-sizing-content font-bold px-2 py-1"
-                />
-                <Select
-                  value={projectType}
-                  onValueChange={(value) => setProjectType(value as PostTypes)}
-                >
-                  <SelectTrigger className="w-auto">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(PostTypes).map((type: PostTypes) => (
-                      <SelectItem key={type} value={type}>
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Label htmlFor="visibility">
-                  {visibility === ProjectVisibility.Public
-                    ? "Public"
-                    : "Private"}
-                </Label>
-                <Switch
-                  id="visibility-switch"
-                  checked={visibility === ProjectVisibility.Public}
-                  onCheckedChange={onVisibilityChange}
-                />
-              </div>
-              <Button onClick={handleSave} disabled={isSaving}>
-                {isSaving ? (
-                  <Loader2 className="animate-spin w-4 h-4 mr-2" />
-                ) : (
-                  <Save className="w-4 h-4 mr-2" />
-                )}
-                <span className="text-sm">
-                  {isSaving ? "Saving..." : "Save"}
-                </span>
-              </Button>
-              {project.isOwner && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive">
-                      <Trash2 size={16} />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="z-200">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Project</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete this project? This
-                        action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteProject}>
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="flex flex-row gap-4 items-center">
-              <span className="text-xl font-semibold">{project.title}</span>
-              <Badge className="text-xl font-medium" variant="secondary">
-                {project.type}
-              </Badge>
-            </div>
-          </>
-        )}
+        <Header
+          isOwner={isOwner}
+          project={project}
+          projectTitle={projectTitle}
+          setProjectTitle={setProjectTitle}
+          projectType={projectType}
+          setProjectType={setProjectType}
+          visibility={visibility}
+          onVisibilityChange={onVisibilityChange}
+          onSave={handleSave}
+          onDeleteProject={handleDeleteProject}
+          isSaving={isSaving}
+        />
+
         <div className="flex grow w-full pb-4 min-h-0">
           <ResizablePanelGroup direction="horizontal">
             <ResizablePanel defaultSize={50} minSize={15}>
