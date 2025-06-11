@@ -9,8 +9,6 @@ interface ProjectModalContentProps {
 }
 
 const ProjectModalContent = async ({ publicId }: ProjectModalContentProps) => {
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-
   const queryProject = await getProjectDataByPublicId({
     publicId: publicId,
     includeFiles: true,
