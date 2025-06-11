@@ -1,7 +1,5 @@
 "use client";
 import React, { useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Play } from "lucide-react";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -12,6 +10,7 @@ import { useProjectState } from "@/features/project/components/project-editor/us
 import { useProjectActions } from "@/features/project/components/project-editor/useProjectActions";
 import Header from "@/features/project/components/project-editor/Header";
 import CodeEditor from "@/features/project/components/project-editor/CodeEditor";
+import PreviewPanel from "@/features/project/components/project-editor/PreviewPanel";
 
 interface Props {
   isOwner?: boolean;
@@ -19,7 +18,7 @@ interface Props {
 }
 
 const ProjectEditor = ({ isOwner = false, project }: Props) => {
-  const iframeRef = useRef(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const {
     projectTitle,
@@ -91,23 +90,11 @@ const ProjectEditor = ({ isOwner = false, project }: Props) => {
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={50} minSize={15}>
-              <div className="flex flex-col h-full pl-4">
-                <div className="flex items-center justify-between">
-                  <span className="py-2 text-lg font-bold">Preview</span>
-                  <Button onClick={runCode} variant="outline" size="sm">
-                    <Play className="w-3 h-3" />
-                    <span>Run</span>
-                  </Button>
-                </div>
-
-                <iframe
-                  ref={iframeRef}
-                  srcDoc={srcDoc}
-                  title="preview"
-                  className="w-full h-full bg-white rounded-sm border"
-                  sandbox="allow-scripts"
-                />
-              </div>
+              <PreviewPanel
+                iframeRef={iframeRef}
+                srcDoc={srcDoc}
+                onRunCode={runCode}
+              />
             </ResizablePanel>
           </ResizablePanelGroup>
         </div>
