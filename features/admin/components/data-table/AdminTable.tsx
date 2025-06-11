@@ -1,6 +1,6 @@
-import UsersTable from "@/features/admin/components/UsersTable";
+import UsersTable from "@/features/admin/components/data-table/UsersTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ProjectsTable from "@/features/admin/components/ProjectsTable";
+import ProjectsTable from "@/features/admin/components/data-table/ProjectsTable";
 
 export function AdminTable() {
   return (

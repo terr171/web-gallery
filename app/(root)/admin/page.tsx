@@ -1,6 +1,6 @@
 import React from "react";
 import InfoCard from "@/features/admin/components/InfoCard";
-import { AdminTable } from "@/features/admin/components/AdminTable";
+import { AdminTable } from "@/features/admin/components/data-table/AdminTable";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { UserRole } from "@/database/schema";
