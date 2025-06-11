@@ -4,7 +4,7 @@ import {
   deleteComment,
 } from "@/features/user/actions/interactions.actions";
 import { toast } from "sonner";
-import { CommentData } from "../lib/project.types";
+import { CommentData } from "../../lib/project.types";
 
 export const useProjectComments = ({
   publicId,
