@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { ProjectData } from "../../lib/project.types";
 import { PostTypes, ProjectVisibility } from "@/database/schema";
