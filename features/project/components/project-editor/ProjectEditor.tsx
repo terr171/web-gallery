@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { Button } from "../../../components/ui/button";
+import { Button } from "../../../../components/ui/button";
 import { Loader2, Play, Save, Trash2 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -47,7 +47,7 @@ interface Props {
   project: ProjectData;
 }
 
-const CreateProject = ({ isOwner = false, project }: Props) => {
+const ProjectEditor = ({ isOwner = false, project }: Props) => {
   const { publicId, title, type } = project;
 
   const [projectTitle, setProjectTitle] = useState("");
@@ -318,4 +318,4 @@ const CreateProject = ({ isOwner = false, project }: Props) => {
   );
 };
 
-export default CreateProject;
+export default ProjectEditor;

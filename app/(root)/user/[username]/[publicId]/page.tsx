@@ -1,6 +1,6 @@
 import React from "react";
 
-import CreateProject from "@/features/project/components/CreateProject";
+import ProjectEditor from "@/features/project/components/project-editor/ProjectEditor";
 import { incrementProjectViews } from "@/features/user/actions/interactions.actions";
 import ErrorMessage from "@/components/shared/ErrorMessage";
 import { getProjectDataByPublicId } from "@/features/project/queries/project.queries";
@@ -21,7 +21,7 @@ const Page = async ({
     return <ErrorMessage message={result.error} />;
   }
   const project = result.response;
-  return <CreateProject project={project} isOwner={project.isOwner} />;
+  return <ProjectEditor project={project} isOwner={project.isOwner} />;
 };
 
 export default Page;
