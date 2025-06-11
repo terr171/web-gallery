@@ -1,28 +1,13 @@
 "use client";
 import React, { useMemo } from "react";
 import { FileData } from "../../lib/project.types";
-import { FileTypes } from "@/database/schema";
-import { getFileContent } from "@/features/project/lib/utils";
+import { generateIframeContent } from "@/features/project/lib/utils";
 
 interface ProjectPreviewProps {
   files: FileData[];
 }
 const Preview = ({ files }: ProjectPreviewProps) => {
-  const iframeContent = useMemo(() => {
-    const html = getFileContent({ files: files, type: FileTypes.HTML });
-    const css = getFileContent({ files: files, type: FileTypes.CSS });
-    const js = getFileContent({ files: files, type: FileTypes.JS });
-    return `
-      <!DOCTYPE html>
-      <html lang="en">
-        <head><style>${css}</style></head>
-        <body>
-          ${html}
-          <script>${js}</script>
-        </body>
-      </html>
-    `;
-  }, [files]);
+  const iframeContent = useMemo(() => generateIframeContent(files), [files]);
 
   return (
     <div className="border rounded-md pt-1 h-[320px] lg:h-full overflow-hidden">

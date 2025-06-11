@@ -1,7 +1,6 @@
 import React from "react";
 import Link from "next/link";
 import { Eye, Heart, MessageSquare } from "lucide-react";
-import { FileTypes } from "@/database/schema";
 import {
   Card,
   CardContent,
@@ -12,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProjectData } from "@/features/project/lib/project.types";
+import { generateIframeContent } from "@/features/project/lib/utils";
 
 const ProjectCard = ({ project }: { project: ProjectData }) => {
   const {
@@ -25,42 +25,16 @@ const ProjectCard = ({ project }: { project: ProjectData }) => {
     createdAt,
   } = project;
 
-  const getFileContent = (type: FileTypes) => {
-    return project.files!.find((file) => file.type === type)?.content || "";
-  };
-
-  const getIframeContent = () => {
-    const htmlContent = getFileContent(FileTypes.HTML);
-    const cssContent = getFileContent(FileTypes.CSS);
-    const jsContent = getFileContent(FileTypes.JS);
-
-    return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            body { margin: 0; padding: 0; } 
-            ${cssContent}
-          </style>
-        </head>
-        <body>
-          ${htmlContent}
-          <script>${jsContent}</script>
-        </body>
-      </html>
-    `;
-  };
+  const iframeContent = generateIframeContent(project.files);
 
   return (
     <Link href={`/user/${username}/${publicId}`} className="group block h-full">
       <Card className="flex h-full flex-col overflow-hidden transition-shadow duration-200 hover:shadow-md">
-        <CardContent className="relative h-48 w-full overflow-hidden ">
+        <CardContent className="relative h-48 w-full overflow-hidden">
           <iframe
-            srcDoc={getIframeContent()}
+            srcDoc={iframeContent}
             title={`${title} preview`}
-            className="h-full w-full bg-white"
+            className="h-full w-full bg-white rounded-lg"
             sandbox="allow-scripts"
             style={{ pointerEvents: "none" }}
             scrolling="no"
