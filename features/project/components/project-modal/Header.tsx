@@ -4,7 +4,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/utils";
 import { DialogTitle } from "@/components/ui/dialog";
 import Link from "next/link";
-import { Calendar, Eye, Heart, MessageSquare, Trash2 } from "lucide-react";
+import {
+  Calendar,
+  Eye,
+  Heart,
+  MessageSquare,
+  SquareArrowOutUpRight,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -29,6 +36,7 @@ interface ProjectModalHeaderProps {
   isTogglingLike: boolean;
   onToggleLike: () => void;
   onDeleteProject: () => void;
+  onFullView: () => void;
 }
 
 const Header = ({
@@ -41,6 +49,7 @@ const Header = ({
   isTogglingLike,
   onToggleLike,
   onDeleteProject,
+  onFullView,
 }: ProjectModalHeaderProps) => {
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 pb-3 border-b">
@@ -80,13 +89,16 @@ const Header = ({
 
         <div className="flex gap-2">
           <Button
-            variant={liked ? "default" : "outline"}
+            variant={liked ? "outline" : "outline"}
             size="sm"
             onClick={onToggleLike}
             className="flex items-center gap-1"
             disabled={isLoadingLike || isTogglingLike}
           >
-            <Heart size={16} className={liked ? "fill-white" : ""} />
+            <Heart
+              size={16}
+              className={liked ? "fill-red-500 stroke-red-500" : ""}
+            />
             <span>{likedCount}</span>
           </Button>
 
@@ -118,6 +130,9 @@ const Header = ({
               </AlertDialogContent>
             </AlertDialog>
           )}
+          <Button onClick={onFullView} size="sm" variant="default">
+            <SquareArrowOutUpRight />
+          </Button>
         </div>
       </div>
     </div>

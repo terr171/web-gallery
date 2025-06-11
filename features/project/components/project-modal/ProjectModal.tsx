@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +26,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
   const [open, setOpen] = useState(true);
   const [isDeletePending, setIsDeletePending] = useState<boolean>(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   const { liked, likedCount, handleToggleLike, isLoadingLike, isTogglingLike } =
     useProjectLike({
@@ -48,7 +49,12 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
 
   useEffect(() => {
     incrementProjectViews({ publicId: project.publicId });
+    console.log("DD");
   }, []);
+
+  const handleFullPageView = () => {
+    window.location.replace(pathname);
+  };
 
   const handleOpenChange = (openState: boolean) => {
     setOpen(openState);
@@ -93,6 +99,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
             isTogglingLike={isTogglingLike}
             onToggleLike={handleToggleLike}
             onDeleteProject={handleDeleteProject}
+            onFullView={handleFullPageView}
           />
 
           {/* Code and preview section */}
