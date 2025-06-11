@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState, useTransition } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -93,6 +93,9 @@ const UsersTable = () => {
   }, [searchText]);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     const fetchUsers = async () => {
       setIsPending(true);
       try {
@@ -108,6 +111,7 @@ const UsersTable = () => {
         if (roleFilter) params.append("role", roleFilter.toString());
         const getUsersResult = await fetch(
           `/api/admin/users?${params.toString()}`,
+          { signal },
         );
         const data = await getUsersResult.json();
         if (!getUsersResult.ok) {
@@ -126,17 +130,25 @@ const UsersTable = () => {
         if (currentPage > maxPage) {
           setCurrentPage(maxPage);
         }
-      } catch {
-        toast.error("An unexpected error occurred while fetching data.");
-        setUsers([]);
-        setTotalUsers(0);
+      } catch (error) {
+        if (error instanceof Error && error.name !== "AbortError") {
+          toast.error("An unexpected error occurred while fetching data.");
+          setUsers([]);
+          setTotalUsers(0);
+        }
+      } finally {
+        if (!signal.aborted) {
+          setIsPending(false);
+        }
       }
       setIsPending(false);
     };
 
     fetchUsers();
 
-    return () => {};
+    return () => {
+      controller.abort();
+    };
   }, [
     sortKey,
     order,

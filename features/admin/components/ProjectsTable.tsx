@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState, useTransition } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -134,6 +134,9 @@ const ProjectsTable = () => {
   }, [searchText, debouncedSearchText]);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     const fetchProjects = async () => {
       setIsPending(true);
 
@@ -153,6 +156,7 @@ const ProjectsTable = () => {
 
         const getProjectsResult = await fetch(
           `/api/admin/projects?${params.toString()}`,
+          { signal },
         );
         const data = await getProjectsResult.json();
         if (!getProjectsResult.ok) {
@@ -172,15 +176,21 @@ const ProjectsTable = () => {
         if (currentPage > maxPage) {
           setCurrentPage(maxPage);
         }
-      } catch {
-        toast.error("An unexpected error occurred while fetching data.");
-        setProjects([]);
-        setTotalProjects(0);
+      } catch (error) {
+        if (error instanceof Error && error.name !== "AbortError") {
+          toast.error("An unexpected error occurred while fetching data.");
+          setProjects([]);
+          setTotalProjects(0);
+        }
       }
       setIsPending(false);
     };
 
     fetchProjects();
+
+    return () => {
+      controller.abort();
+    };
   }, [
     sortKey,
     order,
