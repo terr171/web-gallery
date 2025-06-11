@@ -1,7 +1,5 @@
 "use client";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,42 +25,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createProject } from "@/features/project/actions/project.actions";
-import { useRouter } from "next/navigation";
+
 import { PostTypes, ProjectVisibility } from "@/database/schema";
 import { Switch } from "@/components/ui/switch";
-import {
-  CreateProjectInput,
-  CreateProjectOutput,
-  createProjectSchema,
-} from "@/features/project/lib/validations";
 
-interface Props {
+import { useCreateProject } from "@/features/project/hooks/useCreateProject";
+
+interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const CreateProjectModal = ({ isOpen, onClose }: Props) => {
-  const router = useRouter();
-  const [error, setError] = useState("");
-  const form = useForm<CreateProjectOutput>({
-    resolver: zodResolver(createProjectSchema),
-    defaultValues: {
-      title: "My Project",
-      type: PostTypes["Others"],
-      visibility: ProjectVisibility.Public,
-    },
-  });
-  const onSubmit = async (data: CreateProjectInput) => {
-    const result = await createProject(data);
-    if (result.success) {
-      form.reset();
-      onClose();
-      const { username, publicId } = result.response;
-      router.push(`/user/${username}/${publicId}`);
-    }
-    if (!result.success) setError(result.error);
-  };
+const CreateProjectModal = ({ isOpen, onClose }: CreateProjectModalProps) => {
+  const { form, onSubmit, error, isSubmitting } = useCreateProject(onClose);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -140,8 +115,8 @@ const CreateProjectModal = ({ isOpen, onClose }: Props) => {
               )}
             />
             {error !== "" && <p className="text-red-600 text-sm">{error}</p>}
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Creating..." : "Submit"}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Creating..." : "Submit"}
             </Button>
           </form>
         </Form>
