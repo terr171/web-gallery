@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 
 import UserProfile from "@/features/user/components/UserProfile";
 import { auth } from "@/auth";
-import InfiniteScrollProjects from "@/features/explore/components/InfiniteScrollProjects";
+import InfiniteScrollProjects from "@/features/project/components/InfiniteScrollProjects";
 import { getProjects } from "@/features/project/queries/project.queries";
 import { checkUserFollow } from "@/features/user/queries/interactions.queries";
 import { getUserData } from "@/features/user/queries/user.queries";

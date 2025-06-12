@@ -1,7 +1,7 @@
 import React from "react";
 import SearchBar from "@/features/search/components/SearchBar";
 import SelectProjectType from "@/features/search/components/SelectProjectType";
-import InfiniteScrollProjects from "@/features/explore/components/InfiniteScrollProjects";
+import InfiniteScrollProjects from "@/features/project/components/InfiniteScrollProjects";
 import SelectSortBy from "@/features/search/components/SelectSortBy";
 import { PostTypes } from "@/database/schema";
 

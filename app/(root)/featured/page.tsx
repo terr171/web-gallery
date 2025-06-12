@@ -1,5 +1,5 @@
 import React from "react";
-import FeaturedSection from "@/features/featured/components/FeaturedSection";
+import FeaturedSection from "@/features/project/components/FeaturedSection";
 
 import { getFeaturedProjects } from "@/features/project/queries/project.queries";
 
