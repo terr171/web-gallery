@@ -1,70 +1,51 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { Check, Eye, Heart, UserPlus } from "lucide-react";
 import { getAvatarUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  followUser,
-  unfollowUser,
-} from "@/features/user/actions/interactions.actions";
-import { toast } from "sonner";
 import InfiniteScrollFollowers from "@/features/user/components/InfiniteScrollFollowers";
 import { UserProfile as UserProfileType } from "@/features/user/lib/user.types";
+import { useFollow } from "@/features/user/hooks/useFollow";
 
-interface Props {
-  username: string;
-  avatarUrl: string | null;
-  totalLikes?: number;
-  totalFollows?: number;
-  totalViews?: number;
-  isFollowing: boolean;
-  isSelf: boolean;
-  initialFollowers: UserProfileType[];
+interface UserProfileProps {
+  user: {
+    username: string;
+    avatarUrl: string | null;
+    totalLikes?: number;
+    totalViews?: number;
+    isFollowing: boolean;
+    isSelf: boolean;
+  };
+  followers: {
+    total?: number;
+    initialList: UserProfileType[];
+  };
 }
 
-const UserProfile = ({
-  username,
-  avatarUrl,
-  totalLikes = 0,
-  totalFollows = 0,
-  totalViews = 0,
-  isFollowing,
-  isSelf,
-  initialFollowers,
-}: Props) => {
-  const [following, setFollowing] = useState<boolean>(isFollowing);
-  const [followerCount, setFollowerCount] = useState<number>(totalFollows);
-  const profileImage = getAvatarUrl(avatarUrl);
-  const handleFollow = async () => {
-    const toggleFollow = following
-      ? await unfollowUser({ username })
-      : await followUser({ username });
-    if (toggleFollow.success) {
-      setFollowerCount((prevCount) =>
-        following ? prevCount - 1 : prevCount + 1,
-      );
-      setFollowing(!following);
-    } else {
-      toast.error(toggleFollow.error);
-    }
-  };
+const UserProfile = ({ user, followers }: UserProfileProps) => {
+  const { isFollowing, followerCount, handleFollowToggle, isPending } =
+    useFollow({
+      username: user.username,
+      initialFollowing: user.isFollowing,
+      initialFollowersCount: followers.total,
+    });
   return (
     <div className="bg-white rounded-2xl shadow-lg px-6 py-8 flex flex-col items-center text-center">
       <div className="relative w-24 h-24 rounded-full overflow-hidden shadow-md mb-4">
         <Image
-          src={profileImage}
-          alt={username}
+          src={getAvatarUrl(user.avatarUrl)}
+          alt={user.username}
           fill
           sizes="auto "
           className="object-cover"
         />
       </div>
-      <h1 className="text-2xl font-bold text-blue-600">@{username}</h1>
+      <h1 className="text-2xl font-bold text-blue-600">@{user.username}</h1>
       <div className="flex space-x-8 mt-3">
         <InfiniteScrollFollowers
-          username={username}
-          initialFollowers={initialFollowers}
+          username={user.username}
+          initialFollowers={followers.initialList}
         >
           <div className="flex items-center cursor-pointer">
             <Heart size={18} className="text-red-500" />
@@ -77,26 +58,27 @@ const UserProfile = ({
         <div className="flex items-center">
           <Heart size={18} className="text-red-500" />
           <span className="ml-2 font-medium">
-            {totalLikes?.toLocaleString()} likes
+            {user.totalLikes?.toLocaleString()} likes
           </span>
         </div>
         <div className="flex items-center">
           <Eye size={18} className="text-gray-500" />
           <span className="ml-2 font-medium">
-            {totalViews?.toLocaleString()} views
+            {user.totalViews?.toLocaleString()} views
           </span>
         </div>
       </div>
-      {!isSelf && (
+      {!user.isSelf && (
         <Button
-          onClick={handleFollow}
+          onClick={handleFollowToggle}
           className={`mt-6 flex items-center px-2 py-2 rounded-full font-medium transition-colors ${
-            following
+            isFollowing
               ? "bg-gray-200 text-gray-700"
               : "bg-blue-600 text-white hover:bg-blue-700"
           }`}
+          disabled={isPending}
         >
-          {following ? (
+          {isFollowing ? (
             <>
               <Check size={18} className="mr-2" />
               Following

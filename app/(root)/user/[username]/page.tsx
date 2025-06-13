@@ -1,7 +1,5 @@
 import React from "react";
-
 import { notFound } from "next/navigation";
-
 import UserProfile from "@/features/user/components/UserProfile";
 import { auth } from "@/auth";
 import InfiniteScrollProjects from "@/features/project/components/InfiniteScrollProjects";
@@ -37,10 +35,18 @@ const Page = async ({ params }: { params: Promise<{ username: string }> }) => {
     <div className="container mx-auto px-6 pt-8">
       <div className="flex flex-col items-center mb-10">
         <UserProfile
-          {...userInfo}
-          isFollowing={isFollowing}
-          isSelf={isSelf}
-          initialFollowers={initialFollowers}
+          user={{
+            username: userInfo.username,
+            avatarUrl: userInfo.avatarUrl,
+            totalLikes: userInfo.totalLikes,
+            totalViews: userInfo.totalViews,
+            isFollowing: isFollowing,
+            isSelf: isSelf,
+          }}
+          followers={{
+            total: userInfo.totalFollows,
+            initialList: initialFollowers,
+          }}
         />
       </div>
 
