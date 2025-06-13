@@ -22,15 +22,20 @@ const InfiniteScrollProjects = ({
 
   const fetchProjects = useCallback(
     async (offset: number, limit: number): Promise<ProjectData[]> => {
-      const params = new URLSearchParams();
-      params.append("offset", offset.toString());
-      params.append("limit", limit.toString());
-      if (order) params.append("order", order);
-      if (sortBy) params.append("sortBy", sortBy);
-      if (username) params.append("username", username);
-      if (searchText) params.append("searchText", searchText);
-      if (type) params.append("type", type);
+      const queryParams = {
+        offset,
+        limit,
+        order,
+        sortBy,
+        username,
+        searchText,
+        type,
+      };
 
+      const definedParams = Object.entries(queryParams).filter(
+        ([_, value]) => value != null && value !== "",
+      );
+      const params = new URLSearchParams(definedParams as string[][]);
       const response = await fetch(`/api/projects?${params.toString()}`);
       const responseData = await response.json();
       if (!response.ok) {
