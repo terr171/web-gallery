@@ -10,6 +10,7 @@ import {
 } from "@/features/user/actions/interactions.actions";
 import { toast } from "sonner";
 import InfiniteScrollFollowers from "@/features/user/components/InfiniteScrollFollowers";
+import { UserProfile as UserProfileType } from "@/features/user/lib/user.types";
 
 interface Props {
   username: string;
@@ -19,6 +20,7 @@ interface Props {
   totalViews?: number;
   isFollowing: boolean;
   isSelf: boolean;
+  initialFollowers: UserProfileType[];
 }
 
 const UserProfile = ({
@@ -29,6 +31,7 @@ const UserProfile = ({
   totalViews = 0,
   isFollowing,
   isSelf,
+  initialFollowers,
 }: Props) => {
   const [following, setFollowing] = useState<boolean>(isFollowing);
   const [followerCount, setFollowerCount] = useState<number>(totalFollows);
@@ -59,7 +62,10 @@ const UserProfile = ({
       </div>
       <h1 className="text-2xl font-bold text-blue-600">@{username}</h1>
       <div className="flex space-x-8 mt-3">
-        <InfiniteScrollFollowers username={username}>
+        <InfiniteScrollFollowers
+          username={username}
+          initialFollowers={initialFollowers}
+        >
           <div className="flex items-center cursor-pointer">
             <Heart size={18} className="text-red-500" />
             <span className="ml-2 font-medium">

@@ -7,16 +7,21 @@ import { auth } from "@/auth";
 import InfiniteScrollProjects from "@/features/project/components/InfiniteScrollProjects";
 import { getProjects } from "@/features/project/queries/project.queries";
 import { checkUserFollow } from "@/features/user/queries/interactions.queries";
-import { getUserData } from "@/features/user/queries/user.queries";
+import {
+  getFollowers,
+  getUserData,
+} from "@/features/user/queries/user.queries";
 
 const Page = async ({ params }: { params: Promise<{ username: string }> }) => {
   const { username } = await params;
-  const [session, userData, followStatus, projectsData] = await Promise.all([
-    auth(),
-    getUserData({ username: username }),
-    checkUserFollow({ username }),
-    getProjects({ username }),
-  ]);
+  const [session, userData, followStatus, projectsData, followersData] =
+    await Promise.all([
+      auth(),
+      getUserData({ username }),
+      checkUserFollow({ username }),
+      getProjects({ username }),
+      getFollowers({ username }),
+    ]);
 
   if (!userData.success) {
     notFound();
@@ -26,11 +31,17 @@ const Page = async ({ params }: { params: Promise<{ username: string }> }) => {
   const userInfo = userData.response;
   const isSelf = session?.user?.name === username;
   const projects = projectsData.success ? projectsData.response : [];
+  const initialFollowers = followersData.success ? followersData.response : [];
 
   return (
     <div className="container mx-auto px-6 pt-8">
       <div className="flex flex-col items-center mb-10">
-        <UserProfile {...userInfo} isFollowing={isFollowing} isSelf={isSelf} />
+        <UserProfile
+          {...userInfo}
+          isFollowing={isFollowing}
+          isSelf={isSelf}
+          initialFollowers={initialFollowers}
+        />
       </div>
 
       <InfiniteScrollProjects

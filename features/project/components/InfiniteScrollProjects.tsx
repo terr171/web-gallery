@@ -1,11 +1,13 @@
 "use client";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback } from "react";
 import ProjectCard from "@/features/project/components/ProjectCard";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { GetProjectsInput } from "@/features/project/lib/validations";
 import { ProjectData } from "@/features/project/lib/project.types";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+
+const NUMBER_OF_NEW_PROJECTS = 9;
 
 const InfiniteScrollProjects = ({
   initialProjects,
@@ -16,103 +18,41 @@ const InfiniteScrollProjects = ({
   options?: GetProjectsInput;
   customClassName?: string;
 }) => {
-  const NUMBER_OF_NEW_PROJECTS = 9;
-  const [projects, setProjects] = useState<ProjectData[]>(initialProjects);
-  const [offset, setOffset] = useState(initialProjects.length);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(
-    initialProjects.length === NUMBER_OF_NEW_PROJECTS,
-  );
-  const [error, setError] = useState("");
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const optionsString = JSON.stringify(options);
+  const { username, type, order, sortBy, searchText } = options || {};
 
-  useEffect(() => {
-    setProjects(initialProjects);
-    setOffset(offset + NUMBER_OF_NEW_PROJECTS);
-    setHasMore(true);
-  }, [initialProjects, optionsString]);
+  const fetchProjects = useCallback(
+    async (offset: number, limit: number): Promise<ProjectData[]> => {
+      const params = new URLSearchParams();
+      params.append("offset", offset.toString());
+      params.append("limit", limit.toString());
+      if (order) params.append("order", order);
+      if (sortBy) params.append("sortBy", sortBy);
+      if (username) params.append("username", username);
+      if (searchText) params.append("searchText", searchText);
+      if (type) params.append("type", type);
 
-  const loadProjects = useCallback(async () => {
-    if (error) {
-      toast.error(error);
-      return;
-    }
-    if (!hasMore || loading) return;
-    setLoading(true);
-    const params = new URLSearchParams();
-    params.append("offset", offset.toString());
-    params.append("limit", NUMBER_OF_NEW_PROJECTS.toString());
-    if (options?.order) params.append("order", options.order);
-    if (options?.sortBy) params.append("sortBy", options.sortBy);
-    if (options?.username) params.append("username", options.username);
-    if (options?.searchText) params.append("searchText", options.searchText);
-    if (options?.type) params.append("type", options.type);
-    try {
       const response = await fetch(`/api/projects?${params.toString()}`);
-
+      const responseData = await response.json();
       if (!response.ok) {
-        const errorData = {
-          error: `Failed to load projects. Status: ${response.status}`,
-        };
-        toast.error(errorData.error);
-        setError(errorData.error);
-        setHasMore(false);
-      } else {
-        const newProjects: ProjectData[] = await response.json();
-
-        if (newProjects.length === 0) {
-          setHasMore(false);
-        } else {
-          setProjects((prevProjects) => [...prevProjects, ...newProjects]);
-          setOffset((prevOffset) => prevOffset + newProjects.length);
-          setHasMore(newProjects.length === NUMBER_OF_NEW_PROJECTS);
-        }
+        throw new Error(responseData);
       }
-    } catch {
-      toast.error("Unexpected network error occurred.");
-      setError("Unexpected network error occurred.");
-      setHasMore(false);
-    } finally {
-      setLoading(false);
-    }
-    setLoading(false);
-  }, [hasMore, loading, error, offset, optionsString, NUMBER_OF_NEW_PROJECTS]);
 
-  const handleObserver = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const target = entries[0];
-      if (target.isIntersecting && hasMore && !loading) {
-        loadProjects();
-      }
+      return responseData;
     },
-    [loadProjects, hasMore, loading],
+    [username, type, order, sortBy, searchText],
   );
 
-  useEffect(() => {
-    setProjects(initialProjects);
-    setOffset(initialProjects.length);
-    setHasMore(initialProjects.length === NUMBER_OF_NEW_PROJECTS);
-    setError("");
-    setLoading(false);
-  }, [optionsString, initialProjects, NUMBER_OF_NEW_PROJECTS]);
-
-  useEffect(() => {
-    observerRef.current = new IntersectionObserver(handleObserver, {
-      rootMargin: "20px",
-    });
-    const currentLoadMoreRef = loadMoreRef.current;
-    if (currentLoadMoreRef) {
-      observerRef.current.observe(currentLoadMoreRef);
-    }
-    return () => {
-      if (currentLoadMoreRef) {
-        observerRef.current?.unobserve(currentLoadMoreRef);
-      }
-      observerRef.current?.disconnect();
-    };
-  }, [handleObserver]);
+  const {
+    data: projects,
+    loading,
+    hasMore,
+    error,
+    loadMoreRef,
+  } = useInfiniteScroll({
+    initialData: initialProjects,
+    pageSize: NUMBER_OF_NEW_PROJECTS,
+    fetchData: fetchProjects,
+  });
 
   return (
     <>
@@ -133,12 +73,12 @@ const InfiniteScrollProjects = ({
       {/* Empty Projects Message */}
       {!loading && projects.length === 0 && !error && (
         <div className="text-center py-10 text-gray-500 px-4 ">
-          {options?.searchText && options.searchText.trim() !== "" ? (
+          {searchText && searchText.trim() !== "" ? (
             <div>
               <h3 className="text-lg font-semibold mb-2">No Results Found</h3>
               <p>
                 Your search for &#34;
-                <span className="font-medium italic">{options.searchText}</span>
+                <span className="font-medium italic">{searchText}</span>
                 &#34; did not match any projects.
               </p>
               <p className="text-sm mt-1">
